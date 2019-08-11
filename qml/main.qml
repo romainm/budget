@@ -34,11 +34,9 @@ ApplicationWindow {
         title: "Please choose files to load"
         folder: shortcuts.home
         selectMultiple: true
+        nameFilters: ["ofx files (*.ofx)"]
         onAccepted: {
             backend.loadFile(fileDialog.fileUrls.slice());
-        }
-        onRejected: {
-            console.log("Canceled")
         }
     }
 

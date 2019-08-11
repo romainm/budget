@@ -4,15 +4,6 @@ import QtQuick.Layouts 1.13
 
 Item {
 
-    ListModel {
-
-        id: transactionModel
-        ListElement { name: "Optus"; amount: 123.00; account: "Smart Access"; category: "phone" }
-        ListElement { name: "AnimalLogic"; amount: 234.00; account: "Smart Access"; category: "income>rom" }
-        ListElement { name: "Optus"; amount: 44444.34 }
-        ListElement { name: "Aldi"; amount: 23.31 }
-        ListElement { name: "Peoplecare"; amount: 500.00 }
-    }
     // delegate for transaction table
     Component {
         id: transactionDelegate
@@ -20,15 +11,22 @@ Item {
         Rectangle {
             id: transactionItem
             width: parent.width - 10
-            height: 50
+            height: 40
             color: ListView.isCurrentItem ? "lightsteelblue" : "white"
             anchors.left: parent.left
             anchors.leftMargin: 10
             Text {
+                id: del_transaction_date
+                text: date
+                font.pixelSize: 16
+                width: 120
+            }
+            Text {
                 id: del_transaction_name
                 text: name
-                font.pixelSize: 24
-                width: 400
+                font.pixelSize: 16
+                width: 700
+                anchors.left: del_transaction_date.right
             }
 
             Text {
@@ -36,6 +34,7 @@ Item {
                 text: account
                 font.pixelSize: 14
                 anchors.top: del_transaction_name.bottom
+                anchors.left: del_transaction_date.right
             }
 
             Text {
@@ -50,7 +49,7 @@ Item {
 
             Text {
                 text: amount
-                font.pixelSize: 18
+                font.pixelSize: 16
                 width: 100
                 horizontalAlignment: Text.AlignRight
                 verticalAlignment: Text.AlignVCenter
@@ -71,14 +70,21 @@ Item {
     }
 
     ListView {
+        id: view
         clip: true
         anchors.fill: parent
         model: transactionModel
         delegate: transactionDelegate
         header: transactionHeader
-        highlightFollowsCurrentItem: true
+        highlightFollowsCurrentItem: false
 
-        highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
+        highlight: Rectangle {
+            color: "lightsteelblue"
+            radius: 5
+            height: 40
+            width: ListView.view.width
+            y:  view.currentItem.y
+        }
         focus: true
     }
 
