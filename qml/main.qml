@@ -75,6 +75,7 @@ ApplicationWindow {
         anchors.fill: parent
         anchors.leftMargin: 150
         source: "page_transactions.qml"
+        focus: true
 
     }
 

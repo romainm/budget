@@ -47,17 +47,26 @@ Item {
                 verticalAlignment: Text.AlignVCenter
             }
 
-            Text {
-                text: amount
-                font.pixelSize: 16
+            Rectangle {
+                color: amountNum > 0 ? "#027524" : "#ba0329"
+                height: parent.height - 20
                 width: 100
-                horizontalAlignment: Text.AlignRight
-                verticalAlignment: Text.AlignVCenter
-                height: parent.height - 10
+                radius: 10
                 anchors.right: parent.right
                 anchors.rightMargin: 5
                 anchors.bottom: parent.bottom
-                anchors.bottomMargin: 5
+                anchors.bottomMargin: 10
+                Text {
+                    id: text_amount
+                    text: amount
+                    color: "white"
+                    font.pixelSize: 16
+                    font.bold: true
+                    horizontalAlignment: Text.AlignRight
+                    verticalAlignment: Text.AlignVCenter
+                    anchors.right: parent.right
+                    anchors.rightMargin: 5
+                }
             }
 
             MouseArea {
@@ -82,23 +91,45 @@ Item {
             color: "lightsteelblue"
             radius: 5
             height: 40
-            width: ListView.view.width
-            y:  view.currentItem.y
+            width: parent.width
+            y:  view.currentItem ? view.currentItem.y : 0
         }
         focus: true
+        ScrollBar.vertical: ScrollBar {}
     }
 
     Component {     //instantiated when header is processed
         id: transactionHeader
         Rectangle {
-            id: banner
-            width: parent.width; height: 50
-            color: "lightgrey"
-            Text {
-                anchors.centerIn: parent
-                text: "Transactions"
-                font.pixelSize: 32
+                color: "lightgrey"
+                width: parent.width
+                height: 40
 
+            Rectangle {
+                color: "white"
+                width: 200
+                height: 30
+
+                TextField {
+                    id: search_box
+                    placeholderText: "Search something here"
+                    width: 200
+
+                    property bool keepFocus: false
+
+                    onTextChanged: {
+                        search_box.keepFocus = true
+                        transactionModel.setFilterString(text)
+                    }
+                    onFocusChanged: {
+                        if (! focus) {
+                            if (search_box.keepFocus) {
+                                search_box.focus = true
+                            }
+                            search_box.keepFocus = false
+                        }
+                    }
+                }
             }
         }
     }
