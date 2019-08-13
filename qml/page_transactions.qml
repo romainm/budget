@@ -37,7 +37,7 @@ Item {
                 anchors.left: del_transaction_date.right
             }
 
-            Text {
+            TextInput {
                 id: del_transaction_cat
                 text: category
                 font.pixelSize: 18
@@ -45,6 +45,13 @@ Item {
                 height: 50
                 anchors.left: del_transaction_name.right
                 verticalAlignment: Text.AlignVCenter
+                MouseArea {
+                    anchors.fill: del_transaction_cat
+                    visible: !del_transaction_cat.focus
+                    onClicked: {
+                        del_transaction_cat.focus = true
+                    }
+                }
             }
 
             Rectangle {
@@ -73,7 +80,8 @@ Item {
               z: 1
               hoverEnabled: false
               anchors.fill: parent
-              onClicked: { transactionItem.ListView.view.currentIndex = index }
+              propagateComposedEvents: true
+              onClicked: { transactionItem.ListView.view.currentIndex = index; mouse.accepted=false }
             }
         }
     }
