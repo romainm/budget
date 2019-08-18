@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.13
 import QtQuick.Controls 2.13
 import QtQuick.Layouts 1.13
 
@@ -45,6 +45,14 @@ Item {
                 height: 50
                 anchors.left: del_transaction_name.right
                 verticalAlignment: Text.AlignVCenter
+                onEditingFinished: {
+                    console.log('editing finished')
+                    del_transaction_cat.focus = false
+                    var qModelIndex = transactionModel.index(index, 0)
+                    transactionModel.setData(qModelIndex, text, "category")
+
+                }
+
                 MouseArea {
                     anchors.fill: del_transaction_cat
                     visible: !del_transaction_cat.focus

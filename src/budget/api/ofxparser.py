@@ -1,26 +1,32 @@
 import datetime
 import re
 
+from .model import Transaction, Account
+
 
 class ParsedTransactions(object):
     def __init__(self):
         self.transactions = []
-        self.accountName = None
+        self.account = None
 
 
 class OFXParser(object):
+    def __init__(self, db):
+        self._db = db
+
     def parse_file(self, filepath):
         with open(filepath) as f:
             return self.parse_ofx_content(f.read())
 
     def parse_ofx_content(self, content):
-        parsed_transactions = ParsedTransactions()
+        parsedTransactions = ParsedTransactions()
         ofx = content.split('<OFX>', 2)
         content = ofx[1].split('\n')
         key_value_re = re.compile('< ([^>]+) > (.*) ', re.VERBOSE)
 
-        bank_id = account_id = account_type = full_account_id = None
+        bank_id = account_id = account_type = full_account_name = None
 
+        transactions = []
         transaction = {}
 
         for line in content:
@@ -37,17 +43,17 @@ class OFXParser(object):
             elif key == 'ACCTTYPE':
                 account_type = value
             elif key == '/BANKACCTFROM':
-                full_account_id = f'{bank_id}-{account_id}'
+                full_account_name = f'{bank_id}-{account_id}'
                 account_type = account_type or 'Bank'
             elif key == '/CCACCTFROM':
-                full_account_id = f'{bank_id}-{account_id}'
+                full_account_name = f'{bank_id}-{account_id}'
                 account_type = account_type or 'Credit'
             elif key == 'STMTTRN':
                 transaction = {'import': True}
-                if full_account_id:
-                    transaction['account_id'] = full_account_id
+                if full_account_name:
+                    transaction['account'] = full_account_name
             elif key == '/STMTTRN':
-                parsed_transactions.transactions.append(transaction)
+                transactions.append(transaction)
             elif key == 'TRNAMT':
                 transaction['amount'] = float(value)
             elif key == 'DTPOSTED':
@@ -58,4 +64,15 @@ class OFXParser(object):
             elif key == 'fitid':
                 transaction['fitid'] = value
 
-        return parsed_transactions
+        account = self._db.accountByName(full_account_name)
+
+        for d in transactions:
+            t = Transaction()
+            t.amount = d.get('amount', t.amount)
+            t.name = d.get('name', t.name)
+            t.date = d.get('date', t.date)
+            t.account = account
+            parsedTransactions.account = account
+            parsedTransactions.transactions.append(t)
+
+        return parsedTransactions

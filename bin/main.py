@@ -1,16 +1,17 @@
 
 import sys
+import os
 
 from PySide2.QtQml import QQmlApplicationEngine
 from PySide2.QtWidgets import QApplication
-from budget.ofxparser import OFXParser
-
+from budget.api.ofxparser import OFXParser
+from budget.api.db import Db
+import sqlite3
 
 from PySide2.QtCore import (
     Qt,
     QObject,
     QUrl,
-    Signal,
     Property,
     Slot,
     QAbstractListModel,
@@ -38,7 +39,7 @@ class Model(QAbstractListModel):
         super(Model, self).__init__(parent)
 
         # Each item is a dictionary of key/value pairs
-        self._items = list({'name': 'toto'})
+        self._items = []
 
     def setItems(self, items):
         self.beginResetModel()
@@ -63,6 +64,9 @@ class Model(QAbstractListModel):
 
         return None
 
+    def setData(self, index, value, role):
+        print('setData', value)
+
     def rowCount(self, parent=QModelIndex()):
         return len(self._items)
 
@@ -81,15 +85,15 @@ class Model(QAbstractListModel):
 
 class Backend(QObject):
 
-
     def __init__(self, model, parent=None):
         super(Backend, self).__init__(parent=parent)
         self._model = model
 
+        self._db = Db.Get()
+
     @Property(QAbstractListModel)
     def transactionModel(self):
         return self._model
-
 
     @Slot('QVariantList')
     def loadFiles(self, filePaths):
@@ -103,9 +107,8 @@ class Backend(QObject):
         parsedTransactions = OFXParser().parse_file(filePath)
         print(f'Loaded {len(parsedTransactions.transactions)} transactions.')
         self._model.setItems(parsedTransactions.transactions)
-
-    def parseOfx(self, content):
-        print("parsing ofx content. Length: %d" % len(content))
+        print(parsedTransactions.transactions)
+        self._db.addTransactions(parsedTransactions.transactions)
 
 
 if __name__ == "__main__":
