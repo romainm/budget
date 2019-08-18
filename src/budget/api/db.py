@@ -21,8 +21,8 @@ class Db(object):
 
         if not os.path.exists(self._dbPath):
             self._makeDb()
-        else:
-            self._connect()
+
+        self._connect()
 
     def path(self):
         return self._dbPath
@@ -37,7 +37,7 @@ class Db(object):
         createTables(db)
 
     def _connect(self):
-        self._db = sqlite3.connect(self._dbfile)
+        self._db = sqlite3.connect(self._dbFile)
         self._db.row_factory = sqlite3.Row
 
     def addTransactions(self, transactions):
@@ -48,11 +48,12 @@ class Db(object):
 
     def accountByName(self, name):
         c = self._db.cursor()
-        items = c.execute('SELECT * from accounts WHERE name = ? LIMIT 1', (name,))
-        if not items:
+        c.execute('SELECT * from accounts WHERE name = ? LIMIT 1', (name,))
+        item = c.fetchone()
+        if not item:
             return Account(name=name)
 
-        return self._createAccountFromDict(items[0])
+        return self._createAccountFromDict(item)
 
     def _createAccountFromDict(self, d):
         return Account(name=d['name'],
@@ -62,3 +63,9 @@ class Db(object):
                        id_=d['id'],
                        )
 
+    def recordAccount(self, account):
+        c = self._db.cursor()
+        c.execute("INSERT INTO accounts(name, label, balanceSet, balanceSetDate) VALUES (?, ?, ?, ?)",
+                  (account.name, account.label, account.balanceSet, account.balanceSetDate))
+        account.id = c.lastrowid
+        self._db.commit()
