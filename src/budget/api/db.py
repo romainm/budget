@@ -14,8 +14,8 @@ class Db(object):
             cls._instance = cls(dbPath)
         return cls._instance
 
-    def __init__(self, dbPath):
-        self._dbPath = dbPath
+    def __init__(self, path):
+        self._dbPath = path
         self._dbFile = os.path.join(os.path.expandvars(self._dbPath), 'budget.db')
         self._db = None
 
@@ -24,7 +24,7 @@ class Db(object):
         else:
             self._connect()
 
-    def dbPath(self):
+    def path(self):
         return self._dbPath
 
     def _makeDb(self):
@@ -33,11 +33,11 @@ class Db(object):
         except:
             pass
 
-        db = sqlite3.connect(self._dbPath)
+        db = sqlite3.connect(self._dbFile)
         createTables(db)
 
     def _connect(self):
-        self._db = sqlite3.connect(self._dbPath)
+        self._db = sqlite3.connect(self._dbfile)
         self._db.row_factory = sqlite3.Row
 
     def addTransactions(self, transactions):
