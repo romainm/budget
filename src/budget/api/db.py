@@ -2,7 +2,7 @@
 import os
 import sqlite3
 from .db_init import createTables
-from .model import Account
+from .model import Account, Transaction
 
 
 class Db(object):
@@ -47,13 +47,23 @@ class Db(object):
         self._db.commit()
 
     def accountByName(self, name):
-        c = self._db.cursor()
-        c.execute('SELECT * from accounts WHERE name = ? LIMIT 1', (name,))
+        c = self._db.execute('SELECT * from accounts '
+                             'WHERE name = ? '
+                             'LIMIT 1', (name,))
         item = c.fetchone()
         if not item:
             return Account(name=name)
 
         return self._createAccountFromDict(item)
+
+    def accountByIds(self, ids):
+        if not ids:
+            return []
+
+        query = f"SELECT * FROM accounts WHERE id in ({','.join(['?']*len(ids))})"
+        c = self._db.execute(query, list(ids))
+        items = c.fetchall()
+        return [self._createAccountFromDict(item) for item in items]
 
     def _createAccountFromDict(self, d):
         return Account(name=d['name'],
@@ -62,6 +72,35 @@ class Db(object):
                        balanceSetDate=d['balanceSetDate'],
                        id_=d['id'],
                        )
+
+    def transactions(self, ft):
+        # temp: filter as a string by name or accountName only. Replace by proper filter object
+        c = self._db.execute('SELECT * from transactions '
+                             'WHERE name LIKE ? ', ('%{}%'.format(ft),))
+        items = c.fetchall()
+        transactions = [self._createTransactionFromDict(item) for item in items]
+
+        # process accounts and categories
+        accountIds = {item['accountId'] for item in items}
+        categoryIds = {item['categoryId'] for item in items}
+
+        accounts = self.accountByIds(accountIds)
+        accountById = {a.id: a for a in accounts}
+        for transaction in transactions:
+            transaction.account = accountById.get(transaction.accountId, Account())
+
+        return transactions
+
+    def _createTransactionFromDict(self, d):
+        t = Transaction(name=d['name'],
+                           date=d['date'],
+                           amount=d['amount'],
+                           fitid=d['fitid'],
+                           id_=d['id'],
+                           )
+        t.accountId = d['accountId']
+        t.categoryId = d['categoryId']
+        return t
 
     def recordAccount(self, account):
         c = self._db.execute("INSERT INTO accounts(name, label, balanceSet, balanceSetDate) VALUES (?, ?, ?, ?)",
@@ -78,3 +117,6 @@ class Db(object):
                              (transaction.name, transaction.date, transaction.amount,
                               transaction.fitid, transaction.account.id, transaction.category.id))
         transaction.id = c.lastrowid
+
+    def recordTransactions(self, transactions):
+        [self.recordTransaction(t) for t in transactions]
