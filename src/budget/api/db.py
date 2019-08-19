@@ -64,8 +64,17 @@ class Db(object):
                        )
 
     def recordAccount(self, account):
-        c = self._db.cursor()
-        c.execute("INSERT INTO accounts(name, label, balanceSet, balanceSetDate) VALUES (?, ?, ?, ?)",
-                  (account.name, account.label, account.balanceSet, account.balanceSetDate))
+        c = self._db.execute("INSERT INTO accounts(name, label, balanceSet, balanceSetDate) VALUES (?, ?, ?, ?)",
+                             (account.name, account.label, account.balanceSet, account.balanceSetDate))
         account.id = c.lastrowid
-        self._db.commit()
+
+    def recordTransaction(self, transaction):
+        account = transaction.account
+        if not account.exists():
+            self.recordAccount(account)
+
+        c = self._db.execute("INSERT INTO transactions(name, date, amount, fitid, accountId, categoryId) "
+                             "VALUES (?, ?, ?, ?, ?, ?)",
+                             (transaction.name, transaction.date, transaction.amount,
+                              transaction.fitid, transaction.account.id, transaction.category.id))
+        transaction.id = c.lastrowid

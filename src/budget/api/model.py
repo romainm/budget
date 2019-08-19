@@ -4,11 +4,15 @@ from datetime import date
 class Transaction(object):
     def __init__(self):
         self.id = None
-        self.amount = 0
         self.name = ''
         self.date = date.today()
+        self.amount = 0
+        self.fitid = None
         self.category = Category()
         self.account = Account()
+
+    def isValid(self):
+        return self.name and self.amount and self.date
 
     def exists(self):
         return self.id is not None
