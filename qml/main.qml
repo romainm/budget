@@ -36,7 +36,7 @@ ApplicationWindow {
         selectMultiple: true
         nameFilters: ["ofx files (*.ofx)"]
         onAccepted: {
-            backend.loadFile(fileDialog.fileUrls.slice());
+            backend.loadFiles(fileDialog.fileUrls.slice());
         }
     }
 

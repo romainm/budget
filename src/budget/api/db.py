@@ -15,8 +15,8 @@ class Db(object):
         return cls._instance
 
     def __init__(self, path):
-        self._dbPath = path
-        self._dbFile = os.path.join(os.path.expandvars(self._dbPath), 'budget.db')
+        self._dbPath = os.path.expandvars(path)
+        self._dbFile = os.path.join(self._dbPath, 'budget.db')
         self._db = None
 
         if not os.path.exists(self._dbPath):
@@ -28,6 +28,7 @@ class Db(object):
         return self._dbPath
 
     def _makeDb(self):
+        print('Creating DB: %s' % self._dbPath)
         try:
             os.makedirs(self._dbPath)
         except:
@@ -37,6 +38,7 @@ class Db(object):
         createTables(db)
 
     def _connect(self):
+        print('Connecting DB: %s' % self._dbFile)
         self._db = sqlite3.connect(self._dbFile)
         self._db.row_factory = sqlite3.Row
 
@@ -73,10 +75,14 @@ class Db(object):
                        id_=d['id'],
                        )
 
-    def transactions(self, ft):
+    def transactions(self, ft=None):
         # temp: filter as a string by name or accountName only. Replace by proper filter object
-        c = self._db.execute('SELECT * from transactions '
-                             'WHERE name LIKE ? ', ('%{}%'.format(ft),))
+        if ft:
+            c = self._db.execute('SELECT * from transactions '
+                                 'WHERE name LIKE ? ', ('%{}%'.format(ft),))
+        else:
+            c = self._db.execute('SELECT * from transactions')
+
         items = c.fetchall()
         transactions = [self._createTransactionFromDict(item) for item in items]
 
@@ -106,6 +112,7 @@ class Db(object):
         c = self._db.execute("INSERT INTO accounts(name, label, balanceSet, balanceSetDate) VALUES (?, ?, ?, ?)",
                              (account.name, account.label, account.balanceSet, account.balanceSetDate))
         account.id = c.lastrowid
+        self._db.commit()
 
     def recordTransaction(self, transaction):
         account = transaction.account
@@ -117,6 +124,7 @@ class Db(object):
                              (transaction.name, transaction.date, transaction.amount,
                               transaction.fitid, transaction.account.id, transaction.category.id))
         transaction.id = c.lastrowid
+        self._db.commit()
 
     def recordTransactions(self, transactions):
         [self.recordTransaction(t) for t in transactions]

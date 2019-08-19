@@ -77,6 +77,9 @@ class SqlTestCase(unittest.TestCase):
         transactions = db.transactions('a')
         self.assertEqual({'a', 'ab'}, {t.name for t in transactions})
 
+        transactions = db.transactions()
+        self.assertEqual({'a', 'ab', 'b'}, {t.name for t in transactions})
+
 
 if __name__ == '__main__':
     unittest.main()
