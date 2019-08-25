@@ -134,18 +134,20 @@ Item {
                 antialiasing: true
                 legend.visible: false
 
-                BarSeries {
+                StackedBarSeries {
                     id: mySeries
                     // last 12 months - configurable in the future
                     property int nbMonths: 12
 
                     property var months: []
                     property var totalPerMonth: Array(nbMonths).fill(0)
+                    property var totalPerMonthNeg: Array(nbMonths).fill(0)
 
                     axisX: BarCategoryAxis { categories: mySeries.months }
                     axisY: ValueAxis { id: valueAxis }
 
-                    BarSet { values: mySeries.totalPerMonth }
+                    BarSet { color: "green"; values: mySeries.totalPerMonth }
+                    BarSet { color: "red"; values: mySeries.totalPerMonthNeg }
 
                     Component.onCompleted: {
                         var date = new Date()
@@ -182,7 +184,8 @@ Item {
                         var min = Math.min(...totalPerMonth)
                         var max = Math.max(...totalPerMonth)
                         totalPerMonth.reverse();
-                        mySeries.totalPerMonth = totalPerMonth;
+                        mySeries.totalPerMonth = totalPerMonth.map(x => Math.max(0, x));
+                        mySeries.totalPerMonthNeg = totalPerMonth.map(x => Math.min(0, x));
                         valueAxis.min = min;
                         valueAxis.max = max;
                         valueAxis.applyNiceNumbers()
