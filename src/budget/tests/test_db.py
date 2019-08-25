@@ -77,8 +77,16 @@ class SqlTestCase(unittest.TestCase):
         transactions = db.transactions('a')
         self.assertEqual({'a', 'ab'}, {t.name for t in transactions})
 
-        transactions = db.transactions()
-        self.assertEqual({'a', 'ab', 'b'}, {t.name for t in transactions})
+    def test_dateIsDateObjectWhenRetrieved(self):
+        db = Db(path=self.f.name + '/tmp')
+        accountOne = Account(name='one')
+        db.recordAccount(accountOne)
+        t1 = Transaction(name="a", date=dtd.today(), amount=123)
+        t1.account = accountOne
+        db.recordTransactions([t1])
+
+        transactions = db.transactions('a')
+        self.assertTrue(isinstance(transactions[0].date, dtd))
 
 
 if __name__ == '__main__':

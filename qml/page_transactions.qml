@@ -1,6 +1,8 @@
 import QtQuick 2.13
 import QtQuick.Controls 2.13
 import QtQuick.Layouts 1.13
+import QtCharts 2.13
+import QtQml 2.13
 
 Item {
 
@@ -17,7 +19,7 @@ Item {
             anchors.leftMargin: 10
             Text {
                 id: del_transaction_date
-                text: date
+                text: date.toLocaleDateString(Qt.locale(), "yy-MM-dd");
                 font.pixelSize: 16
                 width: 120
             }
@@ -94,6 +96,7 @@ Item {
         }
     }
 
+
     ListView {
         id: view
         clip: true
@@ -112,19 +115,91 @@ Item {
         }
         focus: true
         ScrollBar.vertical: ScrollBar {}
+
     }
 
     Component {     //instantiated when header is processed
         id: transactionHeader
         Rectangle {
-                color: "lightgrey"
-                width: parent.width
-                height: 40
+            width: parent.width
+            height: 250
+            color: "lightgrey"
+
+            ChartView {
+                id: chart
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: 200
+                antialiasing: true
+                legend.visible: false
+                BarSeries {
+                    id: mySeries
+                    // last 12 months - configurable in the future
+                    property int nbMonths: 12
+
+                    property var months: []
+                    property var totalPerMonth: Array(nbMonths).fill(0)
+
+                    axisX: BarCategoryAxis { categories: mySeries.months }
+                    axisY: ValueAxis { id: valueAxis }
+
+                    BarSet { values: mySeries.totalPerMonth }
+
+                    Component.onCompleted: {
+                        var date = new Date()
+                        var month;
+                        var months_ = [];
+                        for (var i=0; i<nbMonths; i++) {
+                            month = date.toLocaleDateString(Qt.locale(), "MMM");
+                            months_.unshift(month);
+                            date.setMonth(date.getMonth() - 1);
+                        }
+                        months = months_;
+                    }
+
+                    function compute() {
+                        var totalPerMonth = Array(mySeries.nbMonths).fill(0)
+                        var min = 0, max = 0;
+                        var today = new Date();
+                        var currentMonth = today.getMonth()
+                        var currentYear = today.getYear()
+                        for (var i=0; i<view.count; i++) {
+                            var idx = view.model.index(i, 0);
+                            var amount = view.model.data(idx, 1261);
+                            var date = view.model.data(idx, 1258);
+
+                           var nbMonths = currentMonth - date.getMonth();
+                           var nbYears = currentYear - date.getYear();
+                           nbMonths += nbYears * 12
+
+                            totalPerMonth[nbMonths] += amount;
+                            min = Math.min(min, amount);
+                            max = Math.max(max, amount);
+
+                            console.log(i + " " + amount + " " + date.getMonth());
+                        }
+                        totalPerMonth.reverse();
+                        mySeries.totalPerMonth = totalPerMonth;
+                        valueAxis.min = min;
+                        valueAxis.max = max;
+                        console.log(totalPerMonth);
+                    }
+
+                    Connections {
+                        target: view
+                        onCountChanged: {
+                            mySeries.compute()
+                        }
+                    }
+
+                }
+            }
 
             Rectangle {
-                color: "white"
                 width: 200
                 height: 30
+                anchors.top: chart.bottom
 
                 TextField {
                     id: search_box

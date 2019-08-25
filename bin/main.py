@@ -10,6 +10,7 @@ import sqlite3
 
 from PySide2.QtCore import (
     Qt,
+    QDate,
     QObject,
     QUrl,
     Property,
@@ -26,6 +27,12 @@ class ProxyModel(QSortFilterProxyModel):
     def setFilterString(self, ft):
         self.setFilterCaseSensitivity(Qt.CaseInsensitive)
         self.setFilterFixedString(ft)
+
+    @Property(float)
+    def amount(self, index):
+        return 12
+        return self._transactions[index].amount
+
 
 class Model(QAbstractListModel):
     NameRole = Qt.UserRole + 1000
@@ -57,7 +64,7 @@ class Model(QAbstractListModel):
             elif role == self.AmountNumRole:
                 return transaction.amount
             elif role == self.DateRole:
-                return str(transaction.date)
+                return QDate(transaction.date)
             elif role == self.CategoryRole:
                 return transaction.category.name
             elif role == self.AccountRole:

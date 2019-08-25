@@ -3,6 +3,7 @@ import os
 import sqlite3
 from .db_init import createTables
 from .model import Account, Transaction
+from datetime import date as dtd
 
 
 class Db(object):
@@ -39,7 +40,10 @@ class Db(object):
 
     def _connect(self):
         print('Connecting DB: %s' % self._dbFile)
-        self._db = sqlite3.connect(self._dbFile)
+        self._db = sqlite3.connect(self._dbFile,
+                                   detect_types = sqlite3.PARSE_DECLTYPES |
+                                                  sqlite3.PARSE_COLNAMES
+                                   )
         self._db.row_factory = sqlite3.Row
 
     def addTransactions(self, transactions):
@@ -99,13 +103,14 @@ class Db(object):
 
     def _createTransactionFromDict(self, d):
         t = Transaction(name=d['name'],
-                           date=d['date'],
+                           date=dtd.fromisoformat(d['date']),
                            amount=d['amount'],
                            fitid=d['fitid'],
                            id_=d['id'],
                            )
         t.accountId = d['accountId']
         t.categoryId = d['categoryId']
+        print(t.date, type(t.date))
         return t
 
     def recordAccount(self, account):
@@ -121,7 +126,7 @@ class Db(object):
 
         c = self._db.execute("INSERT INTO transactions(name, date, amount, fitid, accountId, categoryId) "
                              "VALUES (?, ?, ?, ?, ?, ?)",
-                             (transaction.name, transaction.date, transaction.amount,
+                             (transaction.name, transaction.date.isoformat(), transaction.amount,
                               transaction.fitid, transaction.account.id, transaction.category.id))
         transaction.id = c.lastrowid
         self._db.commit()
