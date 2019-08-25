@@ -133,6 +133,7 @@ Item {
                 height: 200
                 antialiasing: true
                 legend.visible: false
+
                 BarSeries {
                     id: mySeries
                     // last 12 months - configurable in the future
@@ -160,7 +161,6 @@ Item {
 
                     function compute() {
                         var totalPerMonth = Array(mySeries.nbMonths).fill(0)
-                        var min = 0, max = 0;
                         var today = new Date();
                         var currentMonth = today.getMonth()
                         var currentYear = today.getYear()
@@ -169,21 +169,23 @@ Item {
                             var amount = view.model.data(idx, 1261);
                             var date = view.model.data(idx, 1258);
 
-                           var nbMonths = currentMonth - date.getMonth();
-                           var nbYears = currentYear - date.getYear();
-                           nbMonths += nbYears * 12
+                            var nbMonths = currentMonth - date.getMonth();
+                            var nbYears = currentYear - date.getYear();
+                            nbMonths += nbYears * 12
+
+                            if (nbMonths >= mySeries.nbMonths) {
+                                continue;
+                            }
 
                             totalPerMonth[nbMonths] += amount;
-                            min = Math.min(min, amount);
-                            max = Math.max(max, amount);
-
-                            console.log(i + " " + amount + " " + date.getMonth());
                         }
+                        var min = Math.min(...totalPerMonth)
+                        var max = Math.max(...totalPerMonth)
                         totalPerMonth.reverse();
                         mySeries.totalPerMonth = totalPerMonth;
                         valueAxis.min = min;
                         valueAxis.max = max;
-                        console.log(totalPerMonth);
+                        valueAxis.applyNiceNumbers()
                     }
 
                     Connections {
@@ -194,6 +196,7 @@ Item {
                     }
 
                 }
+
             }
 
             Rectangle {
