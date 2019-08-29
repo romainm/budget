@@ -16,7 +16,7 @@ ListView {
         color: "lightsteelblue"
         radius: 5
         height: 40
-        width: parent.width
+        width: parent ? parent.width : 0
         y:  view.currentItem ? view.currentItem.y : 0
     }
     focus: true
