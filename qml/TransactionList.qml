@@ -9,7 +9,6 @@ ListView {
     clip: true
     anchors.fill: parent
     delegate: transactionDelegate
-    header: transactionHeader
     highlightFollowsCurrentItem: false
 
     highlight: Rectangle {
@@ -111,46 +110,6 @@ ListView {
         }
     }
 
-    Component {
-        id: transactionHeader
-        Rectangle {
-            width: parent.width
-            height: 250
-            color: "lightgrey"
-
-            TransactionChart{
-                id: chart
-                model: view.model
-            }
-
-            Rectangle {
-                width: 200
-                height: 30
-                anchors.top: chart.bottom
-
-                TextField {
-                    id: search_box
-                    placeholderText: "Search something here"
-                    width: 200
-
-                    property bool keepFocus: false
-
-                    onTextChanged: {
-                        search_box.keepFocus = true
-                        transactionModel.setFilterString(text)
-                    }
-                    onFocusChanged: {
-                        if (! focus) {
-                            if (search_box.keepFocus) {
-                                search_box.focus = true
-                            }
-                            search_box.keepFocus = false
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 

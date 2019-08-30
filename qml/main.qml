@@ -12,22 +12,34 @@ ApplicationWindow {
     visible: true
 
     menuBar: MenuBar {
-            Menu {
-                title: qsTr("&Account")
-                Action { text: qsTr("&New Account...") }
-                Action { text: qsTr("&Open Account...") }
-                Action { text: qsTr("&Save Account") }
-                MenuSeparator { }
-                Action { text: qsTr("&Quit") }
-            }
-            Menu {
-                title: qsTr("&Transactions")
-                Action { 
-                    text: qsTr("&Import") 
-                    onTriggered: fileDialog.visible = true;
-                    }
+        Menu {
+            title: qsTr("&Account")
+            Action { text: qsTr("&New Account...") }
+            Action { text: qsTr("&Open Account...") }
+            Action { text: qsTr("&Save Account") }
+            MenuSeparator { }
+            Action { text: qsTr("&Quit") }
+        }
+        Menu {
+            title: qsTr("&Transactions")
+            Action {
+                text: qsTr("&Import")
+                onTriggered: fileDialog.visible = true;
+                }
+        }
+    }
+
+    header: ToolBar {
+        RowLayout {
+            anchors.fill: parent
+            ToolButton {
+                text: qsTr("Import")
+                onClicked: fileDialog.visible = true;
+                flat: false
+                icon.name: "import"
             }
         }
+    }
 
     FileDialog {
         id: fileDialog
@@ -37,6 +49,7 @@ ApplicationWindow {
         nameFilters: ["ofx files (*.ofx)"]
         onAccepted: {
             backend.loadFiles(fileDialog.fileUrls.slice());
+            pageLoader.source="page_import.qml";
         }
     }
 
@@ -66,6 +79,14 @@ ApplicationWindow {
             text: "Reports"
             onClicked: { console.log("loading reports"); pageLoader.source="page_reports.qml"}
             anchors.top: drawer_label_budgets.bottom
+            anchors.topMargin: 5
+        }
+
+        SidePanelItem {
+            id: drawer_label_import
+            text: "Import"
+            onClicked: { pageLoader.source="page_import.qml"}
+            anchors.top: drawer_label_reports.bottom
             anchors.topMargin: 5
         }
     }
