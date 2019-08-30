@@ -15,6 +15,7 @@ ChartView {
 
     property var model: null
     property var months: []
+    property ListView view: null
 
     StackedBarSeries {
         id: mySeries
@@ -41,6 +42,7 @@ ChartView {
                 date.setMonth(date.getMonth() - 1);
             }
             months = months_;
+            mySeries.compute()
         }
 
         function compute() {

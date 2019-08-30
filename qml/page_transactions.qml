@@ -6,51 +6,44 @@ import QtQml 2.13
 
 Item {
 
-    TransactionList {
-        id: view
-        anchors.fill: parent
+    TransactionChart{
+        id: chart
         model: transactionModel
+        view: view
     }
 
-    Component {
-        id: transactionHeader
-        Rectangle {
-            width: parent.width
-            height: 250
-            color: "lightgrey"
+    TextField {
+        id: search_box
+        placeholderText: "Search something here"
+        width: 200
 
-            TransactionChart{
-                id: chart
-                model: view.model
-            }
+        anchors.top: chart.bottom
+        anchors.right: parent.right
+        anchors.rightMargin: 10
 
-            Rectangle {
-                width: 200
-                height: 30
-                anchors.top: chart.bottom
+        property bool keepFocus: false
 
-                TextField {
-                    id: search_box
-                    placeholderText: "Search something here"
-                    width: 200
-
-                    property bool keepFocus: false
-
-                    onTextChanged: {
-                        search_box.keepFocus = true
-                        view.model.setFilterString(text)
-                    }
-                    onFocusChanged: {
-                        if (! focus) {
-                            if (search_box.keepFocus) {
-                                search_box.focus = true
-                            }
-                            search_box.keepFocus = false
-                        }
-                    }
+        onTextChanged: {
+            search_box.keepFocus = true
+            view.model.setFilterString(text)
+        }
+        onFocusChanged: {
+            if (! focus) {
+                if (search_box.keepFocus) {
+                    search_box.focus = true
                 }
+                search_box.keepFocus = false
             }
         }
+    }
+
+    TransactionList {
+        id: view
+        anchors.top: search_box.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        model: transactionModel
     }
 
 }

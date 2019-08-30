@@ -6,7 +6,6 @@ from PySide2.QtQml import QQmlApplicationEngine
 from PySide2.QtWidgets import QApplication
 from budget.api.ofxparser import OFXParser
 from budget.api.db import Db
-import sqlite3
 
 from PySide2.QtCore import (
     Qt,
@@ -85,7 +84,6 @@ class TransactionModel(QAbstractListModel):
 
     def roleNames(self):
         """Role names are used by QML to map key to role"""
-        print('rolenames called')
         roles = dict()
         roles[self.NameRole] = b"name"
         roles[self.AmountRole] = b"amount"
@@ -127,7 +125,6 @@ class Backend(QObject):
         for path in filePaths:
             parsedTransactions = OFXParser(self._db).parse_file(QUrl(path).toLocalFile())
             print(f'Loaded {len(parsedTransactions.transactions)} transactions.')
-            # self._db.recordTransactions(parsedTransactions.transactions)
             self._transactionImportModel.setTransactions(parsedTransactions.transactions)
 
     @Slot()
@@ -139,8 +136,6 @@ class Backend(QObject):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-
-    transactionModel = TransactionModel()
 
     backend = Backend()
 
