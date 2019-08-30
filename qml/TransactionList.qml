@@ -8,6 +8,8 @@ ListView {
     id: view
     clip: true
     delegate: transactionDelegate
+    header: transactionHeader
+    headerPositioning: ListView.OverlayHeader
     highlightFollowsCurrentItem: false
 
     highlight: Rectangle {
@@ -19,6 +21,55 @@ ListView {
     }
     focus: true
     ScrollBar.vertical: ScrollBar {}
+
+    Component {
+        id: transactionHeader
+        Rectangle {
+            width: parent.width - 10
+            height: 30
+            color: "white"
+            anchors.left: parent.left
+            anchors.leftMargin: 10
+            z: 10
+
+
+                Text {
+                    id: del_transaction_date
+                    text: "Date"
+                    font.pixelSize: 16
+                    font.bold: true
+                    width: 120
+                }
+                Text {
+                    id: del_transaction_name
+                    text: "Name / Account"
+                    font.pixelSize: 16
+                    font.bold: true
+                    width: 700
+                    anchors.left: del_transaction_date.right
+                }
+
+                Text {
+                    id: del_transaction_cat
+                    text: "Category"
+                    font.pixelSize: 16
+                    font.bold: true
+                    width: 150
+                    anchors.left: del_transaction_name.right
+                }
+
+                Text {
+                    horizontalAlignment: Text.AlignRight
+                    width: 100
+                    text: "Amount"
+                    font.pixelSize: 16
+                    font.bold: true
+                    anchors.right: parent.right
+                    anchors.rightMargin: 10
+                }
+            }
+    }
+
 
     Component {
         id: transactionDelegate

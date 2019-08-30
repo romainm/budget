@@ -10,7 +10,6 @@ Item {
         id: view
         anchors.fill: parent
         model: transactionModel
-        header: transactionHeader
     }
 
     Component {
