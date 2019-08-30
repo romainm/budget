@@ -3,6 +3,7 @@ import QtQuick.Controls 2.13
 import QtQuick.Layouts 1.13
 import QtCharts 2.13
 import QtQml 2.13
+import QtQuick.Dialogs 1.1
 
 Item {
 
@@ -21,7 +22,7 @@ Item {
             anchors.left: parent.left
             anchors.leftMargin: 2
 
-            onClicked: backend.recordTransactions();
+            onClicked: messageDialogRecord.visible=true
         }
     }
 
@@ -69,5 +70,20 @@ Item {
             }
         }
     }
+
+    MessageDialog {
+        id: messageDialogRecord
+        icon: StandardIcon.Question
+        title: "Recording Transactions"
+        text: "You are about to record selected transactions. Are you sure?"
+        standardButtons: StandardButton.Yes | StandardButton.No
+        onYes: {
+            visible = false
+            backend.recordTransactions();
+        }
+        onNo: {
+            visible = false
+        }
+}
 
 }
