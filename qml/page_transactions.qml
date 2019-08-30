@@ -8,6 +8,7 @@ Item {
 
     TransactionList {
         id: view
+        anchors.fill: parent
         model: transactionModel
         header: transactionHeader
     }

@@ -7,7 +7,6 @@ import QtQml 2.13
 ListView {
     id: view
     clip: true
-    anchors.fill: parent
     delegate: transactionDelegate
     highlightFollowsCurrentItem: false
 

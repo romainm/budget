@@ -46,12 +46,6 @@ class Db(object):
                                    )
         self._db.row_factory = sqlite3.Row
 
-    def addTransactions(self, transactions):
-        c = self._db.cursor()
-        for t in transactions:
-            c.execute("INSERT INTO transactions(name, date, amount) VALUES (?, ?, ?)", (t["name"], t["date"], t["amount"]))
-        self._db.commit()
-
     def accountByName(self, name):
         c = self._db.execute('SELECT * from accounts '
                              'WHERE name = ? '
@@ -110,7 +104,6 @@ class Db(object):
                            )
         t.accountId = d['accountId']
         t.categoryId = d['categoryId']
-        print(t.date, type(t.date))
         return t
 
     def recordAccount(self, account):
@@ -119,7 +112,7 @@ class Db(object):
         account.id = c.lastrowid
         self._db.commit()
 
-    def recordTransaction(self, transaction):
+    def recordTransaction(self, transaction, commit=True):
         account = transaction.account
         if not account.exists():
             self.recordAccount(account)
@@ -129,7 +122,13 @@ class Db(object):
                              (transaction.name, transaction.date.isoformat(), transaction.amount,
                               transaction.fitid, transaction.account.id, transaction.category.id))
         transaction.id = c.lastrowid
-        self._db.commit()
+        if commit:
+            self._db.commit()
 
     def recordTransactions(self, transactions):
-        [self.recordTransaction(t) for t in transactions]
+        import time
+        start = time.time()
+        [self.recordTransaction(t, commit=False) for t in transactions]
+        self._db.commit()
+        end = time.time()
+        print(f'Recording {len(transactions)} took {(end-start)*1000:02}ms')
