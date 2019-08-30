@@ -77,9 +77,11 @@ class Db(object):
         # temp: filter as a string by name or accountName only. Replace by proper filter object
         if ft:
             c = self._db.execute('SELECT * from transactions '
-                                 'WHERE name LIKE ? ', ('%{}%'.format(ft),))
+                                 'WHERE name LIKE ? '
+                                 'ORDER BY date DESC, name', ('%{}%'.format(ft),))
         else:
-            c = self._db.execute('SELECT * from transactions')
+            c = self._db.execute('SELECT * from transactions '
+                                 'ORDER BY date DESC, name')
 
         items = c.fetchall()
         transactions = [self._createTransactionFromDict(item) for item in items]

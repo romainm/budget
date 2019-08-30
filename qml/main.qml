@@ -36,7 +36,7 @@ ApplicationWindow {
                 text: qsTr("Import")
                 onClicked: fileDialog.visible = true;
                 flat: false
-                icon.name: "import"
+                icon.name: "download"
             }
         }
     }

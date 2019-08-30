@@ -12,8 +12,9 @@ Item {
         height: 34
         color: "grey"
         Button {
-            text: "Import"
+            text: "Record Transactions"
             icon.name: "download"
+            visible: transactionImportModel.rowCount() > 0
             height: 30
             anchors.top: parent.top
             anchors.topMargin: 2
