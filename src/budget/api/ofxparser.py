@@ -46,7 +46,7 @@ class OFXParser(object):
                 full_account_name = f'{bank_id}-{account_id}'
                 account_type = account_type or 'Bank'
             elif key == '/CCACCTFROM':
-                full_account_name = f'{bank_id}-{account_id}'
+                full_account_name = f'{account_id}'
                 account_type = account_type or 'Credit'
             elif key == 'STMTTRN':
                 transaction = {'import': True}
