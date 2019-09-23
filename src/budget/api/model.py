@@ -12,6 +12,8 @@ class Transaction(object):
         self.category = Category()
         self.account = Account()
 
+        self.isMarked = False
+
     def isValid(self):
         return self.name and self.amount and self.date
 

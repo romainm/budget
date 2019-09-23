@@ -71,6 +71,26 @@ ListView {
     }
 
 
+    QtObject {
+        id: fonts
+        property font faded: Qt.font({
+            family: 'Encode Sans',
+            italic: true,
+            pointSize: 9
+        })
+        property font standard: Qt.font({
+            family: 'Encode Sans',
+            pointSize: 12
+        })
+        property font small: Qt.font({
+            family: 'Encode Sans',
+            pointSize: 10
+        })
+        property font money: Qt.font({
+            pointSize: 12,
+            bold: true
+        })
+    }
     Component {
         id: transactionDelegate
 
@@ -78,19 +98,27 @@ ListView {
             id: transactionItem
             width: parent.width - 10
             height: 40
-            color: ListView.isCurrentItem ? "lightsteelblue" : "white"
+            color: {
+                if (ListView.isCurrentItem) {
+                    return "lightsteelblue"
+                }
+                if (flagged) {
+                return "gainsboro"
+                }
+                return "white"
+            }
             anchors.left: parent.left
             anchors.leftMargin: 10
             Text {
                 id: del_transaction_date
                 text: date.toLocaleDateString(Qt.locale(), "yy-MM-dd");
-                font.pixelSize: 16
+                font: flagged? fonts.small : fonts.standard
                 width: 120
             }
             Text {
                 id: del_transaction_name
                 text: name
-                font.pixelSize: 16
+                font: flagged? fonts.faded : fonts.standard
                 width: 700
                 anchors.left: del_transaction_date.right
             }
@@ -98,7 +126,7 @@ ListView {
             Text {
                 id: del_transaction_account
                 text: account
-                font.pixelSize: 14
+                font: fonts.small
                 anchors.top: del_transaction_name.bottom
                 anchors.left: del_transaction_date.right
             }
@@ -106,7 +134,7 @@ ListView {
             TextInput {
                 id: del_transaction_cat
                 text: category
-                font.pixelSize: 18
+                font: fonts.standard
                 width: 150
                 height: 50
                 anchors.left: del_transaction_name.right
@@ -114,8 +142,8 @@ ListView {
                 onEditingFinished: {
                     console.log('editing finished')
                     del_transaction_cat.focus = false
-                    var qModelIndex = transactionModel.index(index, 0)
-                    transactionModel.setData(qModelIndex, text, "category")
+                    var qModelIndex = view.model.index(index, 0)
+                    view.model.setData(qModelIndex, text, "category")
 
                 }
 
@@ -141,8 +169,7 @@ ListView {
                     id: text_amount
                     text: amount
                     color: "white"
-                    font.pixelSize: 16
-                    font.bold: true
+                    font: fonts.money
                     horizontalAlignment: Text.AlignRight
                     verticalAlignment: Text.AlignVCenter
                     anchors.right: parent.right
@@ -156,6 +183,11 @@ ListView {
               anchors.fill: parent
               propagateComposedEvents: true
               onClicked: { transactionItem.ListView.view.currentIndex = index; mouse.accepted=false }
+              onDoubleClicked: {
+                  var qModelIndex = view.model.index(index, 0)
+                  var val = view.model.data(qModelIndex, 1262)
+                  view.model.setData(qModelIndex, !flagged, 1262)
+              }
             }
         }
     }

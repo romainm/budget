@@ -27,11 +27,6 @@ class ProxyModel(QSortFilterProxyModel):
         self.setFilterCaseSensitivity(Qt.CaseInsensitive)
         self.setFilterFixedString(ft)
 
-    @Property(float)
-    def amount(self, index):
-        return 12
-        return self._transactions[index].amount
-
 
 class TransactionModel(QAbstractListModel):
     NameRole = Qt.UserRole + 1000
@@ -40,16 +35,19 @@ class TransactionModel(QAbstractListModel):
     CategoryRole = Qt.UserRole + 1003
     AccountRole = Qt.UserRole + 1004
     AmountNumRole = Qt.UserRole + 1005
+    FlaggedRole = Qt.UserRole + 1006
 
     def __init__(self, parent=None):
         super(TransactionModel, self).__init__(parent)
 
         # Each item is a dictionary of key/value pairs
         self._transactions = []
+        self._flaggedTransactions = set()
 
     def setTransactions(self, transactions):
         self.beginResetModel()
         self._transactions = transactions
+        self._flaggedTransactions = set()
         self.endResetModel()
 
     def transactions(self):
@@ -73,11 +71,19 @@ class TransactionModel(QAbstractListModel):
                 return transaction.category.name
             elif role == self.AccountRole:
                 return transaction.account.name
+            elif role == self.FlaggedRole:
+                return index in self._flaggedTransactions
 
         return None
 
     def setData(self, index, value, role):
-        print('setData', value)
+        if role == self.FlaggedRole:
+            if value:
+                self._flaggedTransactions.add(index)
+            else:
+                self._flaggedTransactions.remove(index)
+            return True
+        return False
 
     def rowCount(self, parent=QModelIndex()):
         return len(self._transactions)
@@ -91,6 +97,7 @@ class TransactionModel(QAbstractListModel):
         roles[self.DateRole] = b"date"
         roles[self.CategoryRole] = b"category"
         roles[self.AccountRole] = b"account"
+        roles[self.FlaggedRole] = b"flagged"
         return roles
 
 
