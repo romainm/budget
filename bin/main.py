@@ -82,6 +82,7 @@ class TransactionModel(QAbstractListModel):
                 self._flaggedTransactions.add(index)
             else:
                 self._flaggedTransactions.remove(index)
+            self.dataChanged.emit(index, index)
             return True
         return False
 
