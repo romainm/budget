@@ -26,6 +26,7 @@ Item {
         onTextChanged: {
             search_box.keepFocus = true
             view.model.setFilterString(text)
+            view.selectionStartIndex = 0
         }
         onFocusChanged: {
             if (! focus) {

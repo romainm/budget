@@ -21,7 +21,7 @@ ListView {
     }
     focus: true
     ScrollBar.vertical: ScrollBar {}
-    property int selectionStartIndex
+    property int selectionStartIndex: 0
 
     Component {
         id: transactionHeader

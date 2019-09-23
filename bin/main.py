@@ -33,7 +33,12 @@ class ProxyModel(QSortFilterProxyModel):
 
     @Slot(int, int)
     def selectBlock(self, start, end):
-        self.sourceModel().selectBlock(start, end)
+
+        start_ = min(start, end)
+        end_ = max(start, end)
+        selectedIndices = {self.mapToSource(self.index(i, 0)) for i in range(start_, end_+1)}
+        self.sourceModel().selectIndices(selectedIndices)
+
 
 class TransactionModel(QAbstractListModel):
     NameRole = Qt.UserRole + 1000
@@ -66,17 +71,13 @@ class TransactionModel(QAbstractListModel):
         self._selectedIndices = set()
         self.dataChanged.emit(self.index(0,0), self.index(self.rowCount()-1, 0))
 
-    def selectBlock(self, start, end):
-        start_ = min(start, end)
-        end_ = max(start, end)
-
+    def selectIndices(self, modelIndices):
         currentMin = min([i.row() for i in self._selectedIndices])
         currentMax = max([i.row() for i in self._selectedIndices])
-
-        self._selectedIndices = {self.index(i, 0) for i in range(start_, end_+1)}
-
+        self._selectedIndices = set(modelIndices)
         self.dataChanged.emit(self.index(currentMin,0), self.index(currentMax, 0))
-        self.dataChanged.emit(self.index(start_,0), self.index(end_, 0))
+
+        [self.dataChanged.emit(m, m) for m in modelIndices]
 
     def clear(self):
         self.setTransactions([])
