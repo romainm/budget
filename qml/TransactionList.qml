@@ -21,6 +21,7 @@ ListView {
     }
     focus: true
     ScrollBar.vertical: ScrollBar {}
+    property int selectionStartIndex
 
     Component {
         id: transactionHeader
@@ -99,7 +100,7 @@ ListView {
             width: parent.width - 10
             height: 40
             color: {
-                if (ListView.isCurrentItem) {
+                if (selected) {
                     return "lightsteelblue"
                 }
                 if (flagged) {
@@ -182,7 +183,27 @@ ListView {
               hoverEnabled: false
               anchors.fill: parent
               propagateComposedEvents: true
-              onClicked: { transactionItem.ListView.view.currentIndex = index; mouse.accepted=false }
+              onClicked: {
+                  var qModelIndex = view.model.index(index, 0)
+                  var val = view.model.data(qModelIndex, 1263)
+                  if (mouse.button == Qt.LeftButton) {
+                      if (mouse.modifiers & Qt.ShiftModifier) {
+                        view.model.setData(qModelIndex, !selected, 1263)
+                        view.model.selectBlock(view.selectionStartIndex, index)
+
+                      }
+                      else if (mouse.modifiers & Qt.ControlModifier) {
+                        view.model.setData(qModelIndex, !selected, 1263)
+                      }
+                      else {
+                        view.model.unselectAll()
+                        view.model.setData(qModelIndex, !selected, 1263)
+                        view.selectionStartIndex = index
+                      }
+                  }
+
+                  mouse.accepted=false
+              }
               onDoubleClicked: {
                   var qModelIndex = view.model.index(index, 0)
                   var val = view.model.data(qModelIndex, 1262)

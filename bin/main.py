@@ -27,6 +27,13 @@ class ProxyModel(QSortFilterProxyModel):
         self.setFilterCaseSensitivity(Qt.CaseInsensitive)
         self.setFilterFixedString(ft)
 
+    @Slot()
+    def unselectAll(self):
+        self.sourceModel().unselectAll()
+
+    @Slot(int, int)
+    def selectBlock(self, start, end):
+        self.sourceModel().selectBlock(start, end)
 
 class TransactionModel(QAbstractListModel):
     NameRole = Qt.UserRole + 1000
@@ -36,22 +43,40 @@ class TransactionModel(QAbstractListModel):
     AccountRole = Qt.UserRole + 1004
     AmountNumRole = Qt.UserRole + 1005
     FlaggedRole = Qt.UserRole + 1006
+    SelectRole = Qt.UserRole + 1007
 
     def __init__(self, parent=None):
         super(TransactionModel, self).__init__(parent)
 
         # Each item is a dictionary of key/value pairs
         self._transactions = []
-        self._flaggedTransactions = set()
+        self._flaggedIndices = set()
+        self._selectedIndices = set()
 
     def setTransactions(self, transactions):
         self.beginResetModel()
         self._transactions = transactions
-        self._flaggedTransactions = set()
+        self._flaggedIndices = set()
         self.endResetModel()
 
     def transactions(self):
         return self._transactions
+
+    def unselectAll(self):
+        self._selectedIndices = set()
+        self.dataChanged.emit(self.index(0,0), self.index(self.rowCount()-1, 0))
+
+    def selectBlock(self, start, end):
+        start_ = min(start, end)
+        end_ = max(start, end)
+
+        currentMin = min([i.row() for i in self._selectedIndices])
+        currentMax = max([i.row() for i in self._selectedIndices])
+
+        self._selectedIndices = {self.index(i, 0) for i in range(start_, end_+1)}
+
+        self.dataChanged.emit(self.index(currentMin,0), self.index(currentMax, 0))
+        self.dataChanged.emit(self.index(start_,0), self.index(end_, 0))
 
     def clear(self):
         self.setTransactions([])
@@ -72,16 +97,25 @@ class TransactionModel(QAbstractListModel):
             elif role == self.AccountRole:
                 return transaction.account.name
             elif role == self.FlaggedRole:
-                return index in self._flaggedTransactions
+                return index in self._flaggedIndices
+            elif role == self.SelectRole:
+                return index in self._selectedIndices
 
         return None
 
     def setData(self, index, value, role):
         if role == self.FlaggedRole:
             if value:
-                self._flaggedTransactions.add(index)
+                self._flaggedIndices.add(index)
             else:
-                self._flaggedTransactions.remove(index)
+                self._flaggedIndices.remove(index)
+            self.dataChanged.emit(index, index)
+            return True
+        elif role == self.SelectRole:
+            if value:
+                self._selectedIndices.add(index)
+            else:
+                self._selectedIndices.remove(index)
             self.dataChanged.emit(index, index)
             return True
         return False
@@ -99,6 +133,7 @@ class TransactionModel(QAbstractListModel):
         roles[self.CategoryRole] = b"category"
         roles[self.AccountRole] = b"account"
         roles[self.FlaggedRole] = b"flagged"
+        roles[self.SelectRole] = b"selected"
         return roles
 
 
