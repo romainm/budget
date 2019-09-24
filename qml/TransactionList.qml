@@ -122,6 +122,8 @@ ListView {
             pointSize: 12,
             bold: true
         })
+        property color baseColor: "black"
+        property color disabledColor: "#9f9f9f"
     }
     Component {
         id: transactionDelegate
@@ -134,9 +136,6 @@ ListView {
                 if (selected) {
                     return "lightsteelblue"
                 }
-                if (flagged) {
-                return "gainsboro"
-                }
                 return "white"
             }
             anchors.left: parent.left
@@ -145,12 +144,14 @@ ListView {
                 id: del_transaction_date
                 text: date.toLocaleDateString(Qt.locale(), "yy-MM-dd");
                 font: flagged? fonts.small : fonts.standard
+                color: flagged? fonts.disabledColor : fonts.baseColor
                 width: 120
             }
             Text {
                 id: del_transaction_name
                 text: name
                 font: flagged? fonts.faded : fonts.standard
+                color: flagged? fonts.disabledColor : fonts.baseColor
                 width: 700
                 anchors.left: del_transaction_date.right
             }
@@ -159,6 +160,7 @@ ListView {
                 id: del_transaction_account
                 text: account
                 font: fonts.small
+                color: flagged? fonts.disabledColor : fonts.baseColor
                 anchors.top: del_transaction_name.bottom
                 anchors.left: del_transaction_date.right
             }
@@ -167,12 +169,12 @@ ListView {
                 id: del_transaction_cat
                 text: category
                 font: fonts.standard
+                color: flagged? fonts.disabledColor : fonts.baseColor
                 width: 150
                 height: 50
                 anchors.left: del_transaction_name.right
                 verticalAlignment: Text.AlignVCenter
                 onEditingFinished: {
-                    console.log('editing finished')
                     del_transaction_cat.focus = false
                     var qModelIndex = view.model.index(index, 0)
                     view.model.setData(qModelIndex, text, "category")
