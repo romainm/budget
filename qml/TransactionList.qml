@@ -189,7 +189,16 @@ ListView {
             }
 
             Rectangle {
-                color: amountNum > 0 ? "#027524" : "#ba0329"
+                color: {
+                    if (flagged) {
+                        return "gainsboro"
+                    }
+                    if (amountNum > 0) {
+                        return "#027524"
+                    }
+                    return "#ba0329"
+                }
+
                 height: parent.height - 20
                 width: 100
                 radius: 10
