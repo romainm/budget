@@ -23,6 +23,37 @@ ListView {
     ScrollBar.vertical: ScrollBar {}
     property int selectionStartIndex: 0
 
+    Keys.onPressed: {
+        if (event.modifiers & Qt.ShiftModifier &&
+            event.key == Qt.Key_Up || event.key == Qt.Key_Down) {
+
+            var lastSelectedIndex = view.currentIndex
+
+            if (event.key == Qt.Key_Up) {
+                view.currentIndex = Math.max(0, view.currentIndex - 1)
+            } else {
+                view.currentIndex += 1
+            }
+
+            var val = true;
+            var qModelIndex;
+
+            var min = Math.min(lastSelectedIndex, view.selectionStartIndex)
+            var max = Math.max(lastSelectedIndex, view.selectionStartIndex)
+            // new index between start and last -> last index set val off
+            if ( view.currentIndex >= min && view.currentIndex <= max) {
+                val = false
+                qModelIndex = view.model.index(lastSelectedIndex, 0)
+            }
+            else {
+                var qModelIndex = view.model.index(view.currentIndex, 0)
+            }
+
+            view.model.setData(qModelIndex, val, 1263)
+            event.accepted = true
+        }
+    }
+
     Component {
         id: transactionHeader
         Rectangle {
@@ -201,7 +232,7 @@ ListView {
                         view.selectionStartIndex = index
                       }
                   }
-
+                  view.currentIndex = index
                   mouse.accepted=false
               }
               onDoubleClicked: {
