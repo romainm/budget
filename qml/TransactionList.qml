@@ -25,7 +25,7 @@ ListView {
 
     Keys.onPressed: {
         if (event.modifiers & Qt.ShiftModifier &&
-            event.key == Qt.Key_Up || event.key == Qt.Key_Down) {
+            (event.key == Qt.Key_Up || event.key == Qt.Key_Down)) {
 
             var lastSelectedIndex = view.currentIndex
 
