@@ -23,6 +23,23 @@ ListView {
     ScrollBar.vertical: ScrollBar {}
     property int selectionStartIndex: 0
 
+    Menu {
+        id: contextMenu
+
+        MenuItem {
+            text: 'Flag'
+            onTriggered: {
+                view.model.flagSelectedItems()
+            }
+        }
+        MenuItem {
+            text: 'Remove Flag'
+            onTriggered: {
+                view.model.unflagSelectedItems()
+            }
+        }
+    }
+
     Keys.onPressed: {
         if (event.modifiers & Qt.ShiftModifier &&
             (event.key == Qt.Key_Up || event.key == Qt.Key_Down)) {
@@ -225,6 +242,7 @@ ListView {
               hoverEnabled: false
               anchors.fill: parent
               propagateComposedEvents: true
+              acceptedButtons: Qt.LeftButton | Qt.RightButton
               onClicked: {
                   var qModelIndex = view.model.index(index, 0)
                   var val = view.model.data(qModelIndex, 1263)
@@ -242,6 +260,12 @@ ListView {
                         view.model.setData(qModelIndex, !selected, 1263)
                         view.selectionStartIndex = index
                       }
+                  }
+                  else if (mouse.button == Qt.RightButton) {
+                    console.log(mouse.x + " " + mouse.y)
+                    contextMenu.x = mouse.x + transactionItem.x
+                    contextMenu.y = mouse.y + transactionItem.y
+                    contextMenu.open()
                   }
                   view.currentIndex = index
                   mouse.accepted=false
