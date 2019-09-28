@@ -182,7 +182,7 @@ ListView {
                 anchors.left: del_transaction_date.right
             }
 
-            TextInput {
+            Text {
                 id: del_transaction_cat
                 text: category
                 font: fonts.standard
@@ -190,13 +190,12 @@ ListView {
                 width: 150
                 height: 50
                 anchors.left: del_transaction_name.right
-                verticalAlignment: Text.AlignVCenter
-                onEditingFinished: {
-                    del_transaction_cat.focus = false
-                    var qModelIndex = view.model.index(index, 0)
-                    view.model.setData(qModelIndex, text, "category")
-
-                }
+//                onEditingFinished: {
+//                    del_transaction_cat.focus = false
+//                    var qModelIndex = view.model.index(index, 0)
+//                    view.model.setData(qModelIndex, text, 1259)
+//
+//                }
 
                 MouseArea {
                     anchors.fill: del_transaction_cat
@@ -262,6 +261,9 @@ ListView {
                       }
                   }
                   else if (mouse.button == Qt.RightButton) {
+                    if (!selected) {
+                        view.model.setData(qModelIndex, true, 1263)
+                    }
                     console.log(mouse.x + " " + mouse.y)
                     contextMenu.x = mouse.x + transactionItem.x
                     contextMenu.y = mouse.y + transactionItem.y
