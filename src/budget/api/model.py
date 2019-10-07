@@ -39,9 +39,9 @@ class Account(object):
 
 
 class Category(object):
-    def __init__(self):
+    def __init__(self, name=None):
         self.id = None
-        self.name = ''
+        self.name = name or ''
 
     def isValid(self):
         return bool(self.name)

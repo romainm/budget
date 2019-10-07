@@ -6,6 +6,8 @@ from PySide2.QtQml import QQmlApplicationEngine
 from PySide2.QtWidgets import QApplication
 from budget.api.ofxparser import OFXParser
 from budget.api.db import Db
+from budget.api.model import Category
+
 
 from PySide2.QtCore import (
     Qt,
@@ -51,7 +53,7 @@ class TransactionModel(QAbstractListModel):
     NameRole = Qt.UserRole + 1000
     AmountRole = Qt.UserRole + 1001
     DateRole = Qt.UserRole + 1002
-    CategoryRole = Qt.UserRole + 1003
+    CategoryRole = Qt.UserRole + 1003  # 1259
     AccountRole = Qt.UserRole + 1004
     AmountNumRole = Qt.UserRole + 1005
     FlaggedRole = Qt.UserRole + 1006
@@ -138,6 +140,9 @@ class TransactionModel(QAbstractListModel):
                 self._selectedIndices.remove(index)
             self.dataChanged.emit(index, index)
             return True
+        elif role == self.CategoryRole:
+            print('setting category to', value)
+            return True
         return False
 
     def rowCount(self, parent=QModelIndex()):
@@ -157,6 +162,47 @@ class TransactionModel(QAbstractListModel):
         return roles
 
 
+class CategoryModel(QAbstractListModel):
+    DataRole = Qt.UserRole + 1000
+
+    def __init__(self, parent=None):
+        super(CategoryModel, self).__init__(parent)
+
+        self._categories = []
+
+    def setCategories(self, categories):
+        self.beginResetModel()
+        self._categories = categories
+        self.endResetModel()
+
+    def categories(self):
+        return self._categories
+
+    def clear(self):
+        self.setTransactions([])
+
+    def data(self, index, role=DataRole):
+        if 0 <= index.row() < self.rowCount() and index.isValid():
+            if role == self.DataRole:
+                category = self._categories[index.row()]
+                return category.name
+        return None
+
+    def setData(self, index, value, role):
+        if role == self.DataRole:
+            return True
+        return False
+
+    def rowCount(self, parent=QModelIndex()):
+        return len(self._categories)
+
+    def roleNames(self):
+        """Role names are used by QML to map key to role"""
+        roles = dict()
+        roles[self.DataRole] = b"modelData"
+        return roles
+
+
 class Backend(QObject):
 
     def __init__(self, parent=None):
@@ -165,6 +211,8 @@ class Backend(QObject):
         self._db = Db.Get()
         self._transactionModel = TransactionModel()
         self._transactionModel.setTransactions(self._db.transactions())
+        self._categoryModel = CategoryModel()
+        self._categoryModel.setCategories([Category('income'), Category('test')])
 
         self._transactionImportModel = TransactionModel()
 
@@ -181,6 +229,9 @@ class Backend(QObject):
 
     def transactionImportModel(self):
         return self._transactionImportModelProxy
+
+    def categoryModel(self):
+        return self._categoryModel
 
     @Slot('QVariantList')
     def loadFiles(self, filePaths):
@@ -205,6 +256,7 @@ if __name__ == "__main__":
     engine = QQmlApplicationEngine()
     engine.rootContext().setContextProperty("backend", backend)
     engine.rootContext().setContextProperty("transactionModel", backend.transactionModel())
+    engine.rootContext().setContextProperty("categoryModel", backend.categoryModel())
     engine.rootContext().setContextProperty("transactionImportModel", backend.transactionImportModel())
     engine.load('../qml/main.qml')
     sys.exit(app.exec_())

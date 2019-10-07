@@ -41,16 +41,19 @@ ListView {
     }
 
     Keys.onPressed: {
+        event.accepted = true;
+        var lastSelectedIndex = view.currentIndex
+
+        if (event.key == Qt.Key_Up) {
+            view.currentIndex = Math.max(0, view.currentIndex - 1)
+        } else if (event.key == Qt.Key_Down){
+            view.currentIndex += 1
+        }
+        if (lastSelectedIndex == view.currentIndex)
+            return;
+
         if (event.modifiers & Qt.ShiftModifier &&
             (event.key == Qt.Key_Up || event.key == Qt.Key_Down)) {
-
-            var lastSelectedIndex = view.currentIndex
-
-            if (event.key == Qt.Key_Up) {
-                view.currentIndex = Math.max(0, view.currentIndex - 1)
-            } else {
-                view.currentIndex += 1
-            }
 
             var val = true;
             var qModelIndex;
@@ -67,7 +70,11 @@ ListView {
             }
 
             view.model.setData(qModelIndex, val, 1263)
-            event.accepted = true
+        }
+        else if (event.key == Qt.Key_Up || event.key == Qt.Key_Down) {
+            var qModelIndex = view.model.index(view.currentIndex, 0)
+            view.model.unselectAll()
+            view.model.setData(qModelIndex, true, 1263)
         }
     }
 
