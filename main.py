@@ -2,14 +2,14 @@
 import sys
 import os
 
-from PySide2.QtQml import QQmlApplicationEngine
-from PySide2.QtWidgets import QApplication
+from PySide6.QtQml import QQmlApplicationEngine
+from PySide6.QtWidgets import QApplication
 from budget.api.ofxparser import OFXParser
 from budget.api.db import Db
 from budget.api.model import Category
 
 
-from PySide2.QtCore import (
+from PySide6.QtCore import (
     Qt,
     QDate,
     QObject,
@@ -142,6 +142,7 @@ class TransactionModel(QAbstractListModel):
             return True
         elif role == self.CategoryRole:
             print('setting category to', value)
+            self._transactions[index].cat
             return True
         return False
 
@@ -197,6 +198,7 @@ class CategoryModel(QAbstractListModel):
         return len(self._categories)
 
     def roleNames(self):
+
         """Role names are used by QML to map key to role"""
         roles = dict()
         roles[self.DataRole] = b"modelData"
@@ -258,5 +260,6 @@ if __name__ == "__main__":
     engine.rootContext().setContextProperty("transactionModel", backend.transactionModel())
     engine.rootContext().setContextProperty("categoryModel", backend.categoryModel())
     engine.rootContext().setContextProperty("transactionImportModel", backend.transactionImportModel())
-    engine.load('../qml/main.qml')
-    sys.exit(app.exec_())
+    engine.load('qml/main.qml')
+    
+    sys.exit(app.exec())

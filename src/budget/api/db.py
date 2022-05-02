@@ -10,7 +10,7 @@ class Db(object):
     _instance = None
 
     @classmethod
-    def Get(cls, dbPath='$HOME/budget'):
+    def Get(cls, dbPath='budget'):
         if not cls._instance:
             cls._instance = cls(dbPath)
         return cls._instance

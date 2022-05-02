@@ -20,7 +20,7 @@ ChartView {
     StackedBarSeries {
         id: mySeries
         // last 12 months - configurable in the future
-        property int nbMonths: 12
+        property int nbMonths: 24
 
         property var months: []
         property var totalPerMonth: Array(nbMonths).fill(0)
@@ -32,12 +32,12 @@ ChartView {
         BarSet { color: "green"; values: mySeries.totalPerMonth }
         BarSet { color: "red"; values: mySeries.totalPerMonthNeg }
 
-        Component.onCompleted: {
+        Component.onCompleted: function() {
             var date = new Date()
             var month;
             var months_ = [];
             for (var i=0; i<nbMonths; i++) {
-                month = date.toLocaleDateString(Qt.locale(), "MMM");
+                month = date.toLocaleDateString(Qt.locale(), "MMM yyyy");
                 months_.unshift(month);
                 date.setMonth(date.getMonth() - 1);
             }
@@ -77,7 +77,7 @@ ChartView {
 
         Connections {
             target: view
-            onCountChanged: {
+            function onCountChanged() {
                 mySeries.compute()
             }
         }

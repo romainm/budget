@@ -1,8 +1,8 @@
-import QtQuick 2.13
-import QtQuick.Controls 2.13
-import QtQuick.Layouts 1.13
-import QtCharts 2.13
-import QtQml 2.13
+import QtQuick 2
+import QtQuick.Controls 2
+import QtQuick.Layouts 1
+import QtCharts 2
+import QtQml 2
 
 ListView {
     id: view
@@ -28,19 +28,19 @@ ListView {
 
         MenuItem {
             text: 'Flag'
-            onTriggered: {
+            onTriggered: function() {
                 view.model.flagSelectedItems()
             }
         }
         MenuItem {
             text: 'Remove Flag'
-            onTriggered: {
+            onTriggered: function() {
                 view.model.unflagSelectedItems()
             }
         }
     }
 
-    Keys.onPressed: {
+    Keys.onPressed: function(event) {
         event.accepted = true;
         var lastSelectedIndex = view.currentIndex
 
@@ -154,7 +154,7 @@ ListView {
 
         Rectangle {
             id: transactionItem
-            width: parent.width - 10
+            width: view.width - 10
             height: 40
             color: {
                 if (selected) {
@@ -162,7 +162,7 @@ ListView {
                 }
                 return "white"
             }
-            anchors.left: parent.left
+            // anchors.left: view.left
             anchors.leftMargin: 10
             Text {
                 id: del_transaction_date
@@ -189,7 +189,7 @@ ListView {
                 anchors.left: del_transaction_date.right
             }
 
-            Text {
+            TextInput {
                 id: del_transaction_cat
                 text: category
                 font: fonts.standard
@@ -197,17 +197,18 @@ ListView {
                 width: 150
                 height: 50
                 anchors.left: del_transaction_name.right
-//                onEditingFinished: {
-//                    del_transaction_cat.focus = false
-//                    var qModelIndex = view.model.index(index, 0)
-//                    view.model.setData(qModelIndex, text, 1259)
-//
-//                }
+               onEditingFinished: function() {
+                   console.log('hey', text)
+                   del_transaction_cat.focus = false
+                   var qModelIndex = view.model.index(index, 0)
+                   view.model.setData(qModelIndex, text, 1259)
+
+               }
 
                 MouseArea {
                     anchors.fill: del_transaction_cat
                     visible: !del_transaction_cat.focus
-                    onClicked: {
+                    onClicked: function() {
                         del_transaction_cat.focus = true
                     }
                 }
@@ -228,7 +229,7 @@ ListView {
                 width: 100
                 radius: 10
                 anchors.right: parent.right
-                anchors.rightMargin: 5
+                anchors.rightMargin: 10
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: 10
                 Text {
@@ -249,7 +250,7 @@ ListView {
               anchors.fill: parent
               propagateComposedEvents: true
               acceptedButtons: Qt.LeftButton | Qt.RightButton
-              onClicked: {
+              onClicked: function(mouse) {
                   var qModelIndex = view.model.index(index, 0)
                   var val = view.model.data(qModelIndex, 1263)
                   if (mouse.button == Qt.LeftButton) {
@@ -279,7 +280,7 @@ ListView {
                   view.currentIndex = index
                   mouse.accepted=false
               }
-              onDoubleClicked: {
+              onDoubleClicked: function() {
                   var qModelIndex = view.model.index(index, 0)
                   var val = view.model.data(qModelIndex, 1262)
                   view.model.setData(qModelIndex, !flagged, 1262)

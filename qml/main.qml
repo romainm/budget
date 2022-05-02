@@ -1,8 +1,9 @@
-import QtQuick 2.13
-import QtQuick.Controls 2.13
+import QtQuick 2.15
+import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.13
-import QtQuick.Dialogs 1.0
+import QtQuick.Dialogs
 // import Qt.labs.platform 1.0
+import QtCharts
 
 
 ApplicationWindow {
@@ -44,11 +45,11 @@ ApplicationWindow {
     FileDialog {
         id: fileDialog
         title: "Please choose files to load"
-        folder: shortcuts.home
-        selectMultiple: true
+        // currentFolder: shortcuts.home
+        fileMode: FileDialog.OpenFiles
         nameFilters: ["ofx files (*.ofx)"]
         onAccepted: {
-            backend.loadFiles(fileDialog.fileUrls.slice());
+            backend.loadFiles(fileDialog.selectedFiles.slice());
             pageLoader.source="page_import.qml";
         }
     }

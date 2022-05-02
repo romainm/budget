@@ -1,9 +1,9 @@
-import QtQuick 2.13
-import QtQuick.Controls 2.13
+import QtQuick 2.15
+import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.13
-import QtCharts 2.13
-import QtQml 2.13
-import QtQuick.Dialogs 1.1
+import QtCharts 2.15
+import QtQml 2.15
+import QtQuick.Dialogs
 
 Item {
 
@@ -54,11 +54,11 @@ Item {
 
                     property bool keepFocus: false
 
-                    onTextChanged: {
+                    onTextChanged: function() {
                         search_box.keepFocus = true
                         view.model.setFilterString(text)
                     }
-                    onFocusChanged: {
+                    onFocusChanged: function() {
                         if (! focus) {
                             if (search_box.keepFocus) {
                                 search_box.focus = true
@@ -73,17 +73,17 @@ Item {
 
     MessageDialog {
         id: messageDialogRecord
-        icon: StandardIcon.Question
+        // icon: StandardIcon.Question
         title: "Recording Transactions"
         text: "You are about to record selected transactions. Are you sure?"
-        standardButtons: StandardButton.Yes | StandardButton.No
-        onYes: {
-            visible = false
+        buttons: MessageDialog.Yes | MessageDialog.No
+        onAccepted: function() {
+            // visible = false
             backend.recordTransactions();
         }
-        onNo: {
-            visible = false
-        }
+        // onNo: {
+        //     visible = false
+        // }
 }
 
 }
