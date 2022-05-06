@@ -198,7 +198,6 @@ ListView {
                 height: 50
                 anchors.left: del_transaction_name.right
                onEditingFinished: function() {
-                   console.log('hey', text)
                    del_transaction_cat.focus = false
                    var qModelIndex = view.model.index(index, 0)
                    view.model.setData(qModelIndex, text, 1259)

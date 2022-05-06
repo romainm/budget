@@ -2,7 +2,7 @@
 import os
 import sqlite3
 from .db_init import createTables
-from .model import Account, Transaction
+from .model import Account, Category, Transaction
 from datetime import date as dtd
 
 
@@ -88,7 +88,6 @@ class Db(object):
 
         # process accounts and categories
         accountIds = {item['accountId'] for item in items}
-        categoryIds = {item['categoryId'] for item in items}
 
         accounts = self.accountByIds(accountIds)
         accountById = {a.id: a for a in accounts}
@@ -134,3 +133,14 @@ class Db(object):
         self._db.commit()
         end = time.time()
         print(f'Recording {len(transactions)} took {(end-start)*1000:02}ms')
+
+    def categoryById(self, categoryId):
+        if not categoryId:
+            return Category()
+
+        query = f"SELECT * FROM categories WHERE id = '?')"
+        c = self._db.execute(query, categoryId)
+        item = c.fetchone()
+        if not item:
+            return Category()
+        return self._createCategory(item)

@@ -49,7 +49,7 @@ ApplicationWindow {
         fileMode: FileDialog.OpenFiles
         nameFilters: ["ofx files (*.ofx)"]
         onAccepted: {
-            backend.loadFiles(fileDialog.selectedFiles.slice());
+            modelAPI.loadFiles(fileDialog.selectedFiles.slice());
             pageLoader.source="page_import.qml";
         }
     }

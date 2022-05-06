@@ -11,8 +11,8 @@ class ParsedTransactions(object):
 
 
 class OFXParser(object):
-    def __init__(self, db):
-        self._db = db
+    def __init__(self, api):
+        self._api = api
 
     def parse_file(self, filepath):
         with open(filepath) as f:
@@ -64,14 +64,14 @@ class OFXParser(object):
             elif key == 'fitid':
                 transaction['fitid'] = value
 
-        account = self._db.accountByName(full_account_name)
+        account = self._api.account(full_account_name)
 
         for d in transactions:
-            t = Transaction()
-            t.amount = d.get('amount', t.amount)
-            t.name = d.get('name', t.name)
-            t.date = d.get('date', t.date)
-            t.account = account
+            name = d.get('name')
+            date = d.get('date')
+            amount = d.get('amount')
+            fitid = d.get('fitid')
+            t = Transaction(full_account_name, name, date, amount, fitid=fitid)
             parsedTransactions.account = account
             parsedTransactions.transactions.append(t)
 

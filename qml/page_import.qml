@@ -79,7 +79,7 @@ Item {
         buttons: MessageDialog.Yes | MessageDialog.No
         onAccepted: function() {
             // visible = false
-            backend.recordTransactions();
+            modelAPI.recordTransactions();
         }
         // onNo: {
         //     visible = false

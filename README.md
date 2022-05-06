@@ -1,8 +1,50 @@
 # budget
 
+Very basic application to learn QtQuick. This was built using an old version of QtQuick and has recently been refreshed to work with PySide6. Not many features are working yet though and the rest probably needs to be rewritten.
 ## todo
 
+- flagging should not work in the main transaction UI. This is an import thing only. It is there to disable items.
 - API level, with unittests
 - Import should import all transactions
 - Import should display the transactions from the file(s) we are importing
-- import should filter out already imported transactions
+- import should filter out already imported transactions <- that might be done already, that was definitely the case for the electron version
+
+
+## How to build and execute
+
+### Using pipenv
+
+`cd` into the folder and
+- `pipenv install` to install all necessary dependencies
+- `pipenv shell`
+- `python main.py`
+
+In the future we'll package that with PyInstaller so it's easier to run.
+
+
+## Dev notes
+
+Transaction objects are high-level objects. You can change them directly. This should not change the database unless you manually do it.
+Transaction know about the category object. You can swap that category object but cannot set a category name on a transaction.
+
+API.createNewCategory() -> create a category in the database.
+
+newCategory = Category("newName")
+transaction.setCategory(newCategory)
+
+// the database does not know about that yet.
+
+the API on top of that needs to ensure that the database is in sync.
+
+
+
+Store - read/write from disk/db
+Model - Category, Transaction, Account - They know if they have been serialised or not, the serialiser is associated with the objects.
+API - manages model objects, based on the serialisation strategy.
+
+
+API - does not manage the store at all, that's automatic.
+SqlStore: listTransactions / createTransactions / ...
+
+
+
