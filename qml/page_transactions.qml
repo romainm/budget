@@ -82,19 +82,26 @@ Item {
             anchors.topMargin: 20
             anchors.bottom: parent.bottom
             model: categoryModel
+            width: parent.width
             delegate:
-                Text {
-                    text: modelData
-                    font.pixelSize: 18
+                Item {
+                    width: ListView.view.width
+                    height: childrenRect.height
+                    Rectangle {
+                        Text {
+                            text: modelData
+                            font.pixelSize: 18
+                        }
+                        color: index == category_view.currentIndex ? "lightsteelblue": "white"
+                        width: childrenRect.width
+                        height: childrenRect.height
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        acceptedButtons: Qt.LeftButton | Qt.RightButton
+                        onClicked: function() {category_view.currentIndex = index; console.log("changed to" + modelData)}
+                    }
                 }
-
-            highlight: Rectangle {
-                color: "lightsteelblue"
-                radius: 5
-                height: 40
-                width: parent ? parent.width : 0
-                y:  category_view.currentItem ? category_view.currentItem.y : 0
-            }
         }
     }
 }

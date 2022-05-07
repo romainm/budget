@@ -369,7 +369,7 @@ if __name__ == "__main__":
     transaction = api.createTransaction('010-040', 'aldi', dtd.today(), 134.40)
     transaction.category = api.createCategory('dailies')
     transaction2 = api.createTransaction('010-040', 'optus', dtd.today(), 60.00)
-    transaction2.category = api.createCategory('dailies')
+    transaction2.category = api.createCategory('groceries')
     api.recordTransactions([transaction, transaction2])
     print("transactions recorded")
     print(api.transactions())
