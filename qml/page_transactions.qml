@@ -23,7 +23,6 @@ Item {
         anchors.bottom: parent.bottom
 
         width: 620
-//        color: "blue"
 
         TextField {
             id: search_box
@@ -53,55 +52,86 @@ Item {
 
         TransactionList {
             id: view
+            model: transactionModel
             anchors.top: search_box.bottom
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: parent.bottom
-            model: transactionModel
         }
     }
 
     Rectangle {
         id: right_pane
+        width: 200
+        height: 20
         anchors.top: chart.bottom
         anchors.left: left_pane.right
-        anchors.right: parent.right
         anchors.bottom: parent.bottom
-        anchors.leftMargin: 20
+        anchors.leftMargin: 10
+        anchors.rightMargin:10
+        border.width: 1
+        border.color: "#a4d2ff"
 
-        Text {
+        Rectangle {
             id: title
-            text: "Set Category"
-            font.pixelSize: 24
-            font.bold: true
+            width: parent.width
+            height: 20
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.topMargin:1
+            anchors.leftMargin:1
+            anchors.rightMargin:1
+            color: "#a4d2ff"
+
+            Text {
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                text: "Category"
+                font.pixelSize: 16
+                font.bold: true
+                verticalAlignment: Text.AlignVCenter
+            }
         }
 
         ListView {
             id: category_view
+
             anchors.top: title.bottom
-            anchors.topMargin: 20
             anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.topMargin: 2
+            anchors.leftMargin: 2
+            anchors.rightMargin: 2
+
             model: categoryModel
-            width: parent.width
+            width: 200
             delegate:
                 Item {
                     width: ListView.view.width
-                    height: childrenRect.height
+                    height: 20
                     Rectangle {
                         Text {
                             text: modelData
-                            font.pixelSize: 18
+                            font.pixelSize: 14
                         }
-                        color: index == category_view.currentIndex ? "lightsteelblue": "white"
-                        width: childrenRect.width
-                        height: childrenRect.height
+                        color: index == category_view.currentIndex ? "#d2e8ff": "white"
+                        width: parent.width
+                        height: parent.height
                     }
                     MouseArea {
                         anchors.fill: parent
+
+                        hoverEnabled: true
                         acceptedButtons: Qt.LeftButton | Qt.RightButton
                         onDoubleClicked: function() {
-                            category_view.currentIndex = index;
                             modelAPI.setSelectedTransactionsCategory(modelData)
+                        }
+                        onEntered: function() {
+                            console.log("entering " + modelData)
+                            category_view.currentIndex = index;
                         }
                     }
                 }

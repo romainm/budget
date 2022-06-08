@@ -271,12 +271,52 @@ class UIModel(QObject):
         transactions = self._transactionModel.transactions(self._transactionModel.selectedIndices())
         self._api.setCategory(categoryName, transactions)
 
+def setupTempCategories():
+    for cat in [
+        'income rom',
+        'income vero',
+        'rentals only',
+        'tax return',
+        'crypto',
+        'parents rom',
+        'daily',
+        'charity',
+        'car insurance',
+        'car rego',
+        'car fuel',
+        'car fees',
+        'public transport',
+        'fun',
+        'health insurance',
+        'kids allowance',
+        'kids activities',
+        'childcare',
+        'gas',
+        'phone',
+        'electricity',
+        'internet',
+        'council',
+        'water',
+        'safe deposit',
+        'holiday',
+        'subscriptions',
+        'CA membership',
+        'home maintenance',
+        'home insurance',
+        'car service',
+
+
+
+
+    ]:
+        api.recordCategory(api.createCategory(cat))
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     store = InMemoryStore()
     api = Api(store)
+    setupTempCategories()
     modelAPI = UIModel(api)
 
     # transactions are not yet in the database.
