@@ -88,8 +88,13 @@ class TransactionModel(QAbstractListModel):
         self._flaggedIndices = set()
         self.endResetModel()
 
-    def transactions(self):
-        return self._transactions
+    def transactions(self, indices=None):
+        if not indices:
+            return self._transactions
+        return [self._transactions[i] for i in indices]
+
+    def selectedIndices(self):
+        return [i.row() for i in self._selectedIndices]
 
     def unselectAll(self):
         self._selectedIndices = set()
@@ -155,10 +160,6 @@ class TransactionModel(QAbstractListModel):
                 self._selectedIndices.remove(index)
             self.dataChanged.emit(index, index)
             return True
-        elif role == self.CategoryRole:
-            print('setting category to', value)
-            self._api.setCategory(value, [self._transactions[index.row()]])
-            return True
         return False
 
     def rowCount(self, parent=QModelIndex()):
@@ -203,7 +204,6 @@ class CategoryModel(QAbstractListModel):
         return False
 
     def rowCount(self, parent=QModelIndex()):
-        print('rowcount', len(self._api.categories()))
         sys.stdout.flush()
         return len(self._api.categories())
 
@@ -265,6 +265,11 @@ class UIModel(QObject):
         self._api.recordTransactions(self._transactionImportModel.transactions())
         self._transactionModel.setTransactions(self._api.transactions())
         self._transactionImportModel.clear()
+
+    @Slot('QString')
+    def setSelectedTransactionsCategory(self, categoryName):
+        transactions = self._transactionModel.transactions(self._transactionModel.selectedIndices())
+        self._api.setCategory(categoryName, transactions)
 
 
 if __name__ == "__main__":

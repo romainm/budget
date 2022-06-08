@@ -5,7 +5,7 @@ Very basic application to learn QtQuick. This was built using an old version of 
 
 - flagging should not work in the main transaction UI. This is an import thing only. It is there to disable items.
 - category not editable in the list. Instead you click on a category from the left menu.
-- category search to filter existing categories
+- search should be backend search? Currently we have everything in memory and use the proxymodel to filter.
 
 - API level, with unittests
 - Import should import all transactions

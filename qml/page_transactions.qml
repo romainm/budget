@@ -101,6 +101,7 @@ Item {
                         onDoubleClicked: function() {
                             category_view.currentIndex = index;
                             console.log("changed to" + modelData)
+                            modelAPI.setSelectedTransactionsCategory(modelData)
                         }
                     }
                 }
