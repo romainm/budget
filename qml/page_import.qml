@@ -7,22 +7,39 @@ import QtQuick.Dialogs
 
 Item {
 
+    FileDialog {
+        id: fileDialog
+        title: "Please choose files to load"
+        // currentFolder: shortcuts.home
+        fileMode: FileDialog.OpenFiles
+        nameFilters: ["ofx files (*.ofx)"]
+        onAccepted: {
+            modelAPI.loadFiles(fileDialog.selectedFiles.slice());
+            pageLoader.source="page_import.qml";
+        }
+    }
+
+
     Rectangle {
         id: actionBar
         width: parent.width
         height: 34
         color: "grey"
-        Button {
-            text: "Record Transactions"
-            icon.name: "download"
-            visible: transactionImportModel.rowCount() > 0
-            height: 30
-            anchors.top: parent.top
-            anchors.topMargin: 2
-            anchors.left: parent.left
-            anchors.leftMargin: 2
-
-            onClicked: messageDialogRecord.visible=true
+        RowLayout {
+            anchors.fill: parent
+            ToolButton {
+                width: 30
+                text: qsTr("Import")
+                onClicked: fileDialog.visible = true;
+                icon.name: "download"
+            }
+            ToolButton {
+                text: "Record Transactions"
+                icon.name: "download"
+                // visible: transactionImportModel.rowCount() > 0
+                width: 30
+                onClicked: messageDialogRecord.visible=true
+            }
         }
     }
 

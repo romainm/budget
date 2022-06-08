@@ -21,37 +21,13 @@ ApplicationWindow {
             MenuSeparator { }
             Action { text: qsTr("&Quit") }
         }
-        Menu {
-            title: qsTr("&Transactions")
-            Action {
-                text: qsTr("&Import")
-                onTriggered: fileDialog.visible = true;
-                }
-        }
-    }
-
-    header: ToolBar {
-        RowLayout {
-            anchors.fill: parent
-            ToolButton {
-                text: qsTr("Import")
-                onClicked: fileDialog.visible = true;
-                flat: false
-                icon.name: "download"
-            }
-        }
-    }
-
-    FileDialog {
-        id: fileDialog
-        title: "Please choose files to load"
-        // currentFolder: shortcuts.home
-        fileMode: FileDialog.OpenFiles
-        nameFilters: ["ofx files (*.ofx)"]
-        onAccepted: {
-            modelAPI.loadFiles(fileDialog.selectedFiles.slice());
-            pageLoader.source="page_import.qml";
-        }
+        // Menu {
+        //     title: qsTr("&Transactions")
+        //     Action {
+        //         text: qsTr("&Import")
+        //         onTriggered: fileDialog.visible = true;
+        //         }
+        // }
     }
 
     Rectangle {

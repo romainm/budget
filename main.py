@@ -1,12 +1,10 @@
 
 import sys
-import os
 
 from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtWidgets import QApplication
 from budget.api.ofxparser import OFXParser
-from budget.api.db import Db
-from budget.api.model import Category, Transaction, Account
+from budget.api import Api, InMemoryStore
 from datetime import date as dtd
 
 
@@ -31,6 +29,18 @@ class ProxyModel(QSortFilterProxyModel):
         self.setFilterCaseSensitivity(Qt.CaseInsensitive)
         self.setFilterFixedString(ft)
 
+    @Slot(str)
+    def setCategoryFilter(self, category):
+        self._categoryFilter = category
+
+    def filterAcceptsRow(self, sourceRow, sourceParent):
+        if not QSortFilterProxyModel.filterAcceptsRow(self, sourceRow, sourceParent):
+            return False
+
+        category = self.sourceModel().data(self.sourceModel().index(sourceRow, 0), TransactionModel.CategoryRole)
+        print(sourceRow, category)
+        return True
+
     @Slot()
     def unselectAll(self):
         self.sourceModel().unselectAll()
@@ -50,6 +60,7 @@ class ProxyModel(QSortFilterProxyModel):
     @Slot()
     def unflagSelectedItems(self):
         self.sourceModel().unflagSelectedItems()
+
 
 class TransactionModel(QAbstractListModel):
     NameRole = Qt.UserRole + 1000
@@ -204,113 +215,10 @@ class CategoryModel(QAbstractListModel):
         return roles
 
 
-
-
-
-class InMemoryStore(object):
-    def __init__(self) -> None:
-        self._accounts = {}
-        self._categories = {}
-        self._transactions = []
-
-    def transactions(self):
-        return self._transactions
-
-    def accounts(self):
-        return list(self._accounts.values())
-
-    def categories(self):
-        return list(self._categories.values())
-
-    def account(self, accountId):
-        return self._accounts.get(accountId)
-
-    def category(self, name):
-        return self._categories.get(name)
-
-    def recordAccount(self, account):
-        self._accounts[account.accountId] = account
-
-    def recordCategory(self, category):
-        self._categories[category.name] = category
-
-    def recordTransactions(self, transactions):
-        self._transactions.extend(transactions)
-
-
-
-class API(QObject):
-
-    categoriesChanged = Signal()
-
-    def __init__(self, store) -> None:
-        QObject.__init__(self)
-        self._store = store
-
-    def transactions(self):
-        return self._store.transactions()
-
-    def categories(self):
-        return self._store.categories()
-
-    def accounts(self):
-        return self._store.accounts()
-
-    def account(self, accountId):
-        return self._store.account(accountId)
-
-    def createTransaction(self, accountId, name, date, amount, fitid=None):
-        return Transaction(accountId, name, date, amount, fitid)
-
-    def createCategory(self, name):
-        existingCategory = self._store.category(name)
-        if existingCategory:
-            return existingCategory
-
-        return Category(name)
-
-    def createAccount(self, accountId, accountLabel=None):
-        existingAccount = self._store.account(accountId)
-        if existingAccount:
-            return existingAccount
-
-        return Account(accountId, accountLabel)
-
-    def recordTransactions(self, transactions):
-        # ensure accounts exist.
-        accountIds = {t.accountId for t in transactions if self._store.account(t.accountId) is None}
-        for accountId in accountIds:
-            self._store.recordAccount(self.createAccount(accountId))
-
-        # ensure categories exist.
-        categories = {t.category for t in transactions if t.category}
-        for category in categories:
-            if self._store.category(category.name) is None:
-                self._store.recordCategory(category)
-
-        self._store.recordTransactions(transactions)
-        return
-
-    def recordCategory(self, category):
-        self._store.recordCategory(category)
-        self.categoriesChanged.emit()
-
-    def recordAccount(self, account):
-        self._store.recordAccount(account)
-
-    def setCategory(self, categoryName, transactions):
-        category = self._store.category(categoryName)
-        if not category:
-            category = Category(categoryName)
-            self.recordCategory(category)
-        for t in transactions:
-            t.category = category
-
-
-class ModelAPI(QObject):
+class UIModel(QObject):
 
     def __init__(self, api, parent=None):
-        super(ModelAPI, self).__init__(parent=parent)
+        super(UIModel, self).__init__(parent=parent)
 
         self._api = api
 
@@ -363,7 +271,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     store = InMemoryStore()
-    api = API(store)
+    api = Api(store)
 
     # transactions are not yet in the database.
     transaction = api.createTransaction('010-040', 'aldi', dtd.today(), 134.40)
@@ -376,7 +284,7 @@ if __name__ == "__main__":
     print(api.accounts())
     print(api.categories())
 
-    modelAPI = ModelAPI(api)
+    modelAPI = UIModel(api)
 
     engine = QQmlApplicationEngine()
     engine.rootContext().setContextProperty("modelAPI", modelAPI)

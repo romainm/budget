@@ -4,10 +4,14 @@ Very basic application to learn QtQuick. This was built using an old version of 
 ## todo
 
 - flagging should not work in the main transaction UI. This is an import thing only. It is there to disable items.
+- category not editable in the list. Instead you click on a category from the left menu.
+- category search to filter existing categories
+
 - API level, with unittests
 - Import should import all transactions
-- Import should display the transactions from the file(s) we are importing
-- import should filter out already imported transactions <- that might be done already, that was definitely the case for the electron version
+
+- import should filter out already imported transactions
+- record button not visible for some reason by default
 
 
 ## How to build and execute

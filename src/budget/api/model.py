@@ -1,6 +1,7 @@
 
 from datetime import date as dtd
 
+
 class Transaction(object):
     def __init__(self, accountId, name=None, date=None, amount=None, fitid=None, id_=None):
         self.id = id_

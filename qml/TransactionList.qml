@@ -101,7 +101,7 @@ ListView {
                     text: "Name / Account"
                     font.pixelSize: 16
                     font.bold: true
-                    width: 700
+                    width: 300
                     anchors.left: del_transaction_date.right
                 }
 
@@ -176,7 +176,7 @@ ListView {
                 text: name
                 font: flagged? fonts.faded : fonts.standard
                 color: flagged? fonts.disabledColor : fonts.baseColor
-                width: 700
+                width: 300
                 anchors.left: del_transaction_date.right
             }
 

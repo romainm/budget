@@ -99,7 +99,10 @@ Item {
                     MouseArea {
                         anchors.fill: parent
                         acceptedButtons: Qt.LeftButton | Qt.RightButton
-                        onClicked: function() {category_view.currentIndex = index; console.log("changed to" + modelData)}
+                        onDoubleClicked: function() {
+                            category_view.currentIndex = index; 
+                            console.log("changed to" + modelData)
+                        }
                     }
                 }
         }
