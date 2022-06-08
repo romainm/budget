@@ -270,6 +270,8 @@ class UIModel(QObject):
     def setSelectedTransactionsCategory(self, categoryName):
         transactions = self._transactionModel.transactions(self._transactionModel.selectedIndices())
         self._api.setCategory(categoryName, transactions)
+        for i in self._transactionModel.selectedIndices():
+            self._transactionModel.dataChanged.emit(self._transactionModel.index(i, 0), self._transactionModel.index(i,0))
 
 def setupTempCategories():
     for cat in [
