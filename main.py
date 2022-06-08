@@ -277,19 +277,22 @@ if __name__ == "__main__":
 
     store = InMemoryStore()
     api = Api(store)
+    modelAPI = UIModel(api)
 
     # transactions are not yet in the database.
-    transaction = api.createTransaction('010-040', 'aldi', dtd.today(), 134.40)
-    transaction.category = api.createCategory('dailies')
-    transaction2 = api.createTransaction('010-040', 'optus', dtd.today(), 60.00)
-    transaction2.category = api.createCategory('groceries')
-    api.recordTransactions([transaction, transaction2])
-    print("transactions recorded")
-    print(api.transactions())
-    print(api.accounts())
-    print(api.categories())
+    # transaction = api.createTransaction('010-040', 'aldi', dtd.today(), 134.40)
+    # transaction.category = api.createCategory('dailies')
+    # transaction2 = api.createTransaction('010-040', 'optus', dtd.today(), 60.00)
+    # transaction2.category = api.createCategory('groceries')
+    # api.recordTransactions([transaction, transaction2])
+    # print("transactions recorded")
+    # print(api.transactions())
+    # print(api.accounts())
+    # print(api.categories())
 
-    modelAPI = UIModel(api)
+    # test data
+    modelAPI.loadFiles([QUrl('file:///C:/Users/romai/Downloads/OFXData (4).ofx')])
+    modelAPI.recordTransactions()
 
     engine = QQmlApplicationEngine()
     engine.rootContext().setContextProperty("modelAPI", modelAPI)

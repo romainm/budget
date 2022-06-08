@@ -13,6 +13,19 @@ Very basic application to learn QtQuick. This was built using an old version of 
 - import should filter out already imported transactions
 - record button not visible for some reason by default
 
+Accounts
+- list accounts on the left pane: name and current balance
+- ability to set today's balance on an account
+- use account label rather than account Id
+
+Categories
+- Add/Remove category
+- Category Income vs Expense... does it matter?
+- Category groups
+
+Storage
+- Test tinydb
+
 
 ## How to build and execute
 

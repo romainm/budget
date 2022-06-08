@@ -17,21 +17,22 @@ Item {
 
     Rectangle {
         id: left_pane
+
         anchors.top: chart.bottom
         anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.rightMargin: 300
         anchors.bottom: parent.bottom
 
+        width: 620
+//        color: "blue"
 
         TextField {
             id: search_box
-            placeholderText: "Search transaction/category"
-            width: 200
 
             anchors.top: parent.top
             anchors.left: parent.left
-            anchors.leftMargin: 10
+            anchors.right: parent.right
+
+            placeholderText: "Search transaction/category"
 
             property bool keepFocus: false
 
@@ -70,7 +71,7 @@ Item {
 
         Text {
             id: title
-            text: "Category Selection"
+            text: "Set Category"
             font.pixelSize: 24
             font.bold: true
         }
@@ -100,7 +101,6 @@ Item {
                         acceptedButtons: Qt.LeftButton | Qt.RightButton
                         onDoubleClicked: function() {
                             category_view.currentIndex = index;
-                            console.log("changed to" + modelData)
                             modelAPI.setSelectedTransactionsCategory(modelData)
                         }
                     }
