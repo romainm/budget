@@ -8,37 +8,28 @@ ListView {
     id: view
     clip: true
     delegate: transactionDelegate
-    header: transactionHeader
-    headerPositioning: ListView.OverlayHeader
     highlightFollowsCurrentItem: false
 
-    highlight: Rectangle {
-        color: "lightsteelblue"
-        radius: 5
-        height: 40
-        width: parent ? parent.width : 0
-        y:  view.currentItem ? view.currentItem.y : 0
-    }
     focus: true
     ScrollBar.vertical: ScrollBar {}
     property int selectionStartIndex: 0
 
-    Menu {
-        id: contextMenu
-
-        MenuItem {
-            text: 'Flag'
-            onTriggered: function() {
-                view.model.flagSelectedItems()
-            }
-        }
-        MenuItem {
-            text: 'Remove Flag'
-            onTriggered: function() {
-                view.model.unflagSelectedItems()
-            }
-        }
-    }
+//    Menu {
+//        id: contextMenu
+//
+//        MenuItem {
+//            text: 'Flag'
+//            onTriggered: function() {
+//                view.model.flagSelectedItems()
+//            }
+//        }
+//        MenuItem {
+//            text: 'Remove Flag'
+//            onTriggered: function() {
+//                view.model.unflagSelectedItems()
+//            }
+//        }
+//    }
 
     Keys.onPressed: function(event) {
         event.accepted = true;
@@ -78,53 +69,6 @@ ListView {
         }
     }
 
-    Component {
-        id: transactionHeader
-        Rectangle {
-            width: parent.width - 10
-            height: 30
-            color: "white"
-            anchors.left: parent.left
-            anchors.leftMargin: 10
-            z: 10
-
-
-                Text {
-                    id: del_transaction_date
-                    text: "Date"
-                    font.pixelSize: 16
-                    font.bold: true
-                    width: 120
-                }
-                Text {
-                    id: del_transaction_name
-                    text: "Name / Account"
-                    font.pixelSize: 16
-                    font.bold: true
-                    width: 300
-                    anchors.left: del_transaction_date.right
-                }
-
-                Text {
-                    id: del_transaction_cat
-                    text: "Category"
-                    font.pixelSize: 16
-                    font.bold: true
-                    width: 150
-                    anchors.left: del_transaction_name.right
-                }
-
-                Text {
-                    horizontalAlignment: Text.AlignRight
-                    width: 100
-                    text: "Amount"
-                    font.pixelSize: 16
-                    font.bold: true
-                    anchors.right: parent.right
-                    anchors.rightMargin: 10
-                }
-            }
-    }
 
 
     QtObject {
@@ -154,66 +98,50 @@ ListView {
 
         Rectangle {
             id: transactionItem
-            width: view.width - 10
-            height: 40
+            width: 600
+            height: 50
             color: {
                 if (selected) {
                     return "lightsteelblue"
                 }
                 return "white"
             }
-            // anchors.left: view.left
-            anchors.leftMargin: 10
+            anchors.left: ListView.view.contentItem.left
+            anchors.leftMargin: 5
+
             Text {
-                id: del_transaction_date
-                text: date.toLocaleDateString(Qt.locale(), "yy-MM-dd");
-                font: flagged? fonts.small : fonts.standard
-                color: flagged? fonts.disabledColor : fonts.baseColor
-                width: 120
-            }
-            Text {
-                id: del_transaction_name
+                id: transactionName
+
+                anchors.left: parent.left
+                anchors.leftMargin: 2
+                anchors.top: parent.top
+                anchors.topMargin: 2
+
                 text: name
                 font: flagged? fonts.faded : fonts.standard
                 color: flagged? fonts.disabledColor : fonts.baseColor
-                width: 300
-                anchors.left: del_transaction_date.right
             }
-
             Text {
-                id: del_transaction_account
-                text: account
-                font: fonts.small
+                id: transactionDate
+
+                anchors.left: parent.left
+                anchors.leftMargin: 2
+                anchors.top: transactionName.bottom
+                anchors.bottomMargin: 2
+
+                text: date.toLocaleDateString(Qt.locale(), "yy-MM-dd");
+                font: flagged? fonts.small : fonts.small
                 color: flagged? fonts.disabledColor : fonts.baseColor
-                anchors.top: del_transaction_name.bottom
-                anchors.left: del_transaction_date.right
+//                width: 120
             }
-
-            TextInput {
-                id: del_transaction_cat
-                text: category
-                font: fonts.standard
-                color: flagged? fonts.disabledColor : fonts.baseColor
-                width: 150
-                height: 50
-                anchors.left: del_transaction_name.right
-               onEditingFinished: function() {
-                   del_transaction_cat.focus = false
-                   var qModelIndex = view.model.index(index, 0)
-                   view.model.setData(qModelIndex, text, 1259)
-
-               }
-
-                MouseArea {
-                    anchors.fill: del_transaction_cat
-                    visible: !del_transaction_cat.focus
-                    onClicked: function() {
-                        del_transaction_cat.focus = true
-                    }
-                }
-            }
-
             Rectangle {
+                id: transactionAmount
+
+                anchors.right: parent.right
+                anchors.rightMargin: 2
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin:2
+
                 color: {
                     if (flagged) {
                         return "gainsboro"
@@ -224,23 +152,45 @@ ListView {
                     return "#ba0329"
                 }
 
-                height: parent.height - 20
+                height: 20
                 width: 100
                 radius: 10
-                anchors.right: parent.right
-                anchors.rightMargin: 10
-                anchors.bottom: parent.bottom
-                anchors.bottomMargin: 10
+
                 Text {
-                    id: text_amount
+                    anchors.fill: parent
+                    anchors.rightMargin: 5
+
                     text: amount
                     color: "white"
                     font: fonts.money
                     horizontalAlignment: Text.AlignRight
                     verticalAlignment: Text.AlignVCenter
-                    anchors.right: parent.right
-                    anchors.rightMargin: 5
                 }
+            }
+            TextInput {
+                id: transactionCategory
+
+                anchors.right: transactionAmount.left
+                anchors.rightMargin: 2
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin:2
+
+                text: category
+                font: fonts.standard
+                color: flagged? fonts.disabledColor : fonts.baseColor
+            }
+
+            Text {
+                id: transactionAccount
+
+                anchors.top: transactionDate.bottom
+                anchors.left: parent.left
+                anchors.topMargin: 2
+                anchors.leftMargin: 2
+
+                text: account
+                font: fonts.small
+                color: flagged? fonts.disabledColor : "lightgrey"
             }
 
             MouseArea {

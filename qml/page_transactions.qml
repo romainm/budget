@@ -26,7 +26,7 @@ Item {
 
         TextField {
             id: search_box
-            placeholderText: "Search something here"
+            placeholderText: "Search transaction/category"
             width: 200
 
             anchors.top: parent.top
@@ -41,7 +41,6 @@ Item {
                 view.selectionStartIndex = 0
             }
             onFocusChanged: {
-                print("focus changed " + focus)
                 if (! focus) {
                     if (search_box.keepFocus) {
                         search_box.focus = true
@@ -100,11 +99,12 @@ Item {
                         anchors.fill: parent
                         acceptedButtons: Qt.LeftButton | Qt.RightButton
                         onDoubleClicked: function() {
-                            category_view.currentIndex = index; 
+                            category_view.currentIndex = index;
                             console.log("changed to" + modelData)
                         }
                     }
                 }
         }
     }
+
 }

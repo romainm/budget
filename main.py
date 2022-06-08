@@ -26,20 +26,20 @@ class ProxyModel(QSortFilterProxyModel):
 
     @Slot(str)
     def setFilterString(self, ft):
+        self._filterString = ft.lower()
         self.setFilterCaseSensitivity(Qt.CaseInsensitive)
         self.setFilterFixedString(ft)
 
-    @Slot(str)
-    def setCategoryFilter(self, category):
-        self._categoryFilter = category
-
     def filterAcceptsRow(self, sourceRow, sourceParent):
-        if not QSortFilterProxyModel.filterAcceptsRow(self, sourceRow, sourceParent):
-            return False
+        if not hasattr(self, '_filterString'):
+            return True
 
+        name = self.sourceModel().data(self.sourceModel().index(sourceRow, 0), TransactionModel.NameRole)
         category = self.sourceModel().data(self.sourceModel().index(sourceRow, 0), TransactionModel.CategoryRole)
-        print(sourceRow, category)
-        return True
+        if self._filterString in category.lower() or self._filterString in name.lower():
+            return True
+
+        return False
 
     @Slot()
     def unselectAll(self):
