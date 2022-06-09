@@ -23,6 +23,9 @@ Categories
 - Category Income vs Expense... does it matter?
 - Category groups
 
+Charts
+- advanced: last n <unit> with unit being week / fortnight/ month/ quarter /  year
+
 Storage
 - Test tinydb
 

@@ -4,81 +4,140 @@ import QtQuick.Layouts 1.13
 import QtCharts 2.13
 import QtQml 2.13
 
+Rectangle {
+    id: container
 
-ChartView {
-    anchors.top: parent.top
-    anchors.left: parent.left
-    anchors.right: parent.right
-    height: 200
-    antialiasing: true
-    legend.visible: false
+    property var model
+    property ListView view
+    property int nbMonths: 12
 
-    property var model: null
-    property var months: []
-    property ListView view: null
+    ColumnLayout {
+        anchors.fill: parent
+        spacing: 1
 
-    StackedBarSeries {
-        id: mySeries
-        // last 12 months - configurable in the future
-        property int nbMonths: 24
+        Rectangle {
+            Layout.alignment: Qt.AlignTop
+            Layout.fillWidth: parent
+            Layout.preferredHeight: 30
 
-        property var months: []
-        property var totalPerMonth: Array(nbMonths).fill(0)
-        property var totalPerMonthNeg: Array(nbMonths).fill(0)
-
-        axisX: BarCategoryAxis { categories: mySeries.months }
-        axisY: ValueAxis { id: valueAxis }
-
-        BarSet { color: "green"; values: mySeries.totalPerMonth }
-        BarSet { color: "red"; values: mySeries.totalPerMonthNeg }
-
-        Component.onCompleted: function() {
-            var date = new Date()
-            var month;
-            var months_ = [];
-            for (var i=0; i<nbMonths; i++) {
-                month = date.toLocaleDateString(Qt.locale(), "MMM yyyy");
-                months_.unshift(month);
-                date.setMonth(date.getMonth() - 1);
+//            Button {
+//                id: y5
+//                anchors.right: parent.right
+//                anchors.rightMargin: 10
+//                text: "5y"
+//                width: 40
+//                onClicked: {
+//                    nbMonths = 12;
+//                    mySeries.refreshHeaders();
+//                    mySeries.refreshData();
+//                }
+//            }
+            Button {
+                id: m24
+//                anchors.right: y5.left
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.rightMargin: 10
+                text: "24m"
+                width: 40
+                onClicked: {
+                    nbMonths = 24;
+                    mySeries.refreshHeaders();
+                    mySeries.refreshData();
+                }
             }
-            months = months_;
-            mySeries.compute()
+            Button {
+                anchors.right: m24.left
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.rightMargin: 10
+                text: "12m"
+                width: 40
+                onClicked: {
+                    nbMonths = 12;
+                    mySeries.refreshHeaders();
+                    mySeries.refreshData();
+                }
+            }
         }
 
-        function compute() {
-            var totalPerMonth = Array(mySeries.nbMonths).fill(0)
-            var today = new Date();
-            var currentMonth = today.getMonth()
-            var currentYear = today.getYear()
-            for (var i=0; i<view.count; i++) {
-                var idx = model.index(i, 0);
-                var amount = model.data(idx, 1261);
-                var date = model.data(idx, 1258);
+        ChartView {
+            Layout.alignment: Qt.AlignTop
+            Layout.fillWidth: parent
+            Layout.preferredHeight: 200
+            Layout.minimumWidth: 800
+            Layout.minimumHeight: 200
+            Layout.margins: -9
+            antialiasing: true
+            legend.visible: false
 
-                var nbMonths = currentMonth - date.getMonth();
-                var nbYears = currentYear - date.getYear();
-                nbMonths += nbYears * 12
+            property var months: []
 
-                if (nbMonths >= mySeries.nbMonths) {
-                    continue;
+            StackedBarSeries {
+                id: mySeries
+
+                property var months: []
+                property var totalPerMonth: Array(nbMonths).fill(0)
+                property var totalPerMonthNeg: Array(nbMonths).fill(0)
+
+                axisX: BarCategoryAxis { categories: mySeries.months }
+                axisY: ValueAxis { id: valueAxis }
+
+                BarSet { color: "green"; values: mySeries.totalPerMonth }
+                BarSet { color: "red"; values: mySeries.totalPerMonthNeg }
+
+                Component.onCompleted: function() {
+                    mySeries.refreshHeaders()
+                    mySeries.refreshData()
                 }
 
-                totalPerMonth[nbMonths] += amount;
-            }
-            var min = Math.min(...totalPerMonth)
-            var max = Math.max(...totalPerMonth)
-            totalPerMonth.reverse();
-            mySeries.totalPerMonth = totalPerMonth.map(x => Math.max(0, x));
-            mySeries.totalPerMonthNeg = totalPerMonth.map(x => Math.min(0, x));
-            valueAxis.min = min;
-            valueAxis.max = max;
-            valueAxis.applyNiceNumbers()
-        }
+                function refreshData() {
+                    var totalPerMonth = Array(nbMonths).fill(0)
+                    var today = new Date();
+                    var currentMonth = today.getMonth()
+                    var currentYear = today.getYear()
+                    for (var i=0; i<view.count; i++) {
+                        var idx = model.index(i, 0);
+                        var amount = model.data(idx, 1261);
+                        var date = model.data(idx, 1258);
 
-        Connections {
-            target: view
-            function onCountChanged() {
-                mySeries.compute()
+                        var nbMonths_ = currentMonth - date.getMonth();
+                        var nbYears = currentYear - date.getYear();
+                        nbMonths_ += nbYears * 12
+
+                        if (nbMonths_ >= nbMonths) {
+                            continue;
+                        }
+
+                        totalPerMonth[nbMonths_] += amount;
+                    }
+                    var min = Math.min(...totalPerMonth)
+                    var max = Math.max(...totalPerMonth)
+                    totalPerMonth.reverse();
+                    mySeries.totalPerMonth = totalPerMonth.map(x => Math.max(0, x));
+                    mySeries.totalPerMonthNeg = totalPerMonth.map(x => Math.min(0, x));
+                    valueAxis.min = min;
+                    valueAxis.max = max;
+                    valueAxis.applyNiceNumbers()
+                }
+
+                function refreshHeaders() {
+                    var date = new Date()
+                    var month;
+                    var months_ = [];
+                    for (var i=0; i<nbMonths; i++) {
+                        month = date.toLocaleDateString(Qt.locale(), "MMM yy");
+                        months_.unshift(month);
+                        date.setMonth(date.getMonth() - 1);
+                    }
+                    months = months_;
+                }
+
+                Connections {
+                    target: view
+                    function onCountChanged() {
+                        mySeries.refreshData()
+                    }
+                }
             }
         }
     }
