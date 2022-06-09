@@ -257,10 +257,12 @@ class UIModel(QObject):
     @Slot('QVariantList')
     def loadFiles(self, filePaths):
         print('loading files: %s' % filePaths)
+        transactions = []
         for path in filePaths:
             parsedTransactions = self._api.importFile(QUrl(path).toLocalFile())
             print(f'Loaded {len(parsedTransactions)} transactions. {len([t for t in parsedTransactions if t.isMarked])} have already been recorded.')
-            self._transactionImportModel.setTransactions(parsedTransactions)
+            transactions.extend(parsedTransactions)
+        self._transactionImportModel.setTransactions(transactions)
 
     @Slot()
     def recordTransactions(self):
