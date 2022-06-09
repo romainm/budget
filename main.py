@@ -3,7 +3,6 @@ import sys
 
 from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtWidgets import QApplication
-from budget.api.ofxparser import OFXParser
 from budget.api import Api, InMemoryStore
 from datetime import date as dtd
 
@@ -86,6 +85,9 @@ class TransactionModel(QAbstractListModel):
         self.beginResetModel()
         self._transactions = transactions
         self._flaggedIndices = set()
+        for i, t in enumerate(transactions):
+            if t.isMarked:
+                self._flaggedIndices.add(self.index(i, 0))
         self.endResetModel()
 
     def transactions(self, indices=None):
@@ -256,9 +258,9 @@ class UIModel(QObject):
     def loadFiles(self, filePaths):
         print('loading files: %s' % filePaths)
         for path in filePaths:
-            parsedTransactions = OFXParser(self._api).parse_file(QUrl(path).toLocalFile())
-            print(f'Loaded {len(parsedTransactions.transactions)} transactions.')
-            self._transactionImportModel.setTransactions(parsedTransactions.transactions)
+            parsedTransactions = self._api.importFile(QUrl(path).toLocalFile())
+            print(f'Loaded {len(parsedTransactions)} transactions. {len([t for t in parsedTransactions if t.isMarked])} have already been recorded.')
+            self._transactionImportModel.setTransactions(parsedTransactions)
 
     @Slot()
     def recordTransactions(self):
@@ -272,6 +274,7 @@ class UIModel(QObject):
         self._api.setCategory(categoryName, transactions)
         for i in self._transactionModel.selectedIndices():
             self._transactionModel.dataChanged.emit(self._transactionModel.index(i, 0), self._transactionModel.index(i,0))
+
 
 def setupTempCategories():
     for cat in [

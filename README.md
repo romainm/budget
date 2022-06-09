@@ -8,10 +8,12 @@ Very basic application to learn QtQuick. This was built using an old version of 
 - search should be backend search? Currently we have everything in memory and use the proxymodel to filter.
 
 - API level, with unittests
-- Import should import all transactions
 
-- import should filter out already imported transactions
 - record button not visible for some reason by default
+
+Memory Model
+- Data will not exist entirely in the list view model. We won't need proxy versions of those if the backend is responsible
+  for sorting and filtering
 
 Accounts
 - list accounts on the left pane: name and current balance
@@ -44,19 +46,16 @@ In the future we'll package that with PyInstaller so it's easier to run.
 
 ## Dev notes
 
-Transaction objects are high-level objects. You can change them directly. This should not change the database unless you manually do it.
+Transaction objects are high-level objects and a copy of the database information. You can change them directly. This should not change the database unless you manually do it.
 Transaction know about the category object. You can swap that category object but cannot set a category name on a transaction.
 
 API.createNewCategory() -> create a category in the database.
 
 newCategory = Category("newName")
-transaction.setCategory(newCategory)
+transaction.setCategory(newCategory)  // the store should be notified and the update should take place
 
-// the database does not know about that yet.
 
 the API on top of that needs to ensure that the database is in sync.
-
-
 
 Store - read/write from disk/db
 Model - Category, Transaction, Account - They know if they have been serialised or not, the serialiser is associated with the objects.

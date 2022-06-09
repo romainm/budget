@@ -131,7 +131,6 @@ Item {
                             modelAPI.setSelectedTransactionsCategory(modelData)
                         }
                         onEntered: function() {
-                            console.log("entering " + modelData)
                             category_view.currentIndex = index;
                         }
                     }

@@ -14,6 +14,14 @@ class Transaction(object):
         self.accountId = accountId
 
         self.isMarked = False
+        if self.fitid:
+            hashStr = fitid
+        else:
+            hashStr = accountId + name + str(self.date) + str(self.amount)
+        self._hash = hash(hashStr)
+
+    def hash(self):
+        return self._hash
 
     def isValid(self):
         return self.accountId and self.name and self.amount and self.date

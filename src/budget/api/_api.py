@@ -1,5 +1,7 @@
 
-from budget.api.model import Category, Transaction, Account
+from .model import Category, Transaction, Account
+from ._ofxparser import OFXParser
+from ._store import TransactionFilter
 
 from PySide6.QtCore import (
     QObject,
@@ -55,6 +57,10 @@ class Api(QObject):
             if self._store.category(category.name) is None:
                 self._store.recordCategory(category)
 
+        # clear isMarked status
+        for t in transactions:
+            t.isMarked = False
+
         self._store.recordTransactions(transactions)
         return
 
@@ -72,3 +78,20 @@ class Api(QObject):
             self.recordCategory(category)
         for t in transactions:
             t.category = category
+
+    def importFile(self, filePath):
+        importedTransactions = OFXParser().parse_file(filePath)
+
+        # create missing accounts
+        for accountId in {t.accountId for t in importedTransactions}:
+            self.createAccount(accountId)
+
+        # remove existing transactions
+        for importedTransaction in importedTransactions:
+            ft = TransactionFilter()
+            ft.hash = importedTransaction.hash()
+            matchingTransactions = self._store.transactions(ft)
+            if matchingTransactions:
+                importedTransaction.isMarked = True
+
+        return importedTransactions

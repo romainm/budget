@@ -92,7 +92,7 @@ Item {
         id: messageDialogRecord
         // icon: StandardIcon.Question
         title: "Recording Transactions"
-        text: "You are about to record selected transactions. Are you sure?"
+        text: "You are about to record transactions. Are you sure?"
         buttons: MessageDialog.Yes | MessageDialog.No
         onAccepted: function() {
             // visible = false

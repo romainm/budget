@@ -66,6 +66,16 @@ ApplicationWindow {
             anchors.top: drawer_label_reports.bottom
             anchors.topMargin: 5
         }
+
+        // this will come later
+//        Text {
+//            id: accounts
+//            anchors.top: drawer_label_import.bottom
+//            anchors.topMargin: 100
+//            text: "Accounts"
+//            font.bold: true
+//            font.pixelSize: 20
+//        }
     }
 
     Loader {

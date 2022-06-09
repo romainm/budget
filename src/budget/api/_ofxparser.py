@@ -1,32 +1,23 @@
 import datetime
 import re
 
-from .model import Transaction, Account
-
-
-class ParsedTransactions(object):
-    def __init__(self):
-        self.transactions = []
-        self.account = None
+from .model import Transaction
 
 
 class OFXParser(object):
-    def __init__(self, api):
-        self._api = api
 
     def parse_file(self, filepath):
         with open(filepath) as f:
             return self.parse_ofx_content(f.read())
 
     def parse_ofx_content(self, content):
-        parsedTransactions = ParsedTransactions()
         ofx = content.split('<OFX>', 2)
         content = ofx[1].split('\n')
         key_value_re = re.compile('< ([^>]+) > (.*) ', re.VERBOSE)
 
         bank_id = account_id = account_type = full_account_name = None
 
-        transactions = []
+        transactionData = []
         transaction = {}
 
         for line in content:
@@ -53,7 +44,7 @@ class OFXParser(object):
                 if full_account_name:
                     transaction['account'] = full_account_name
             elif key == '/STMTTRN':
-                transactions.append(transaction)
+                transactionData.append(transaction)
             elif key == 'TRNAMT':
                 transaction['amount'] = float(value)
             elif key == 'DTPOSTED':
@@ -64,15 +55,13 @@ class OFXParser(object):
             elif key == 'fitid':
                 transaction['fitid'] = value
 
-        account = self._api.account(full_account_name)
-
-        for d in transactions:
+        transactions = []
+        for d in transactionData:
             name = d.get('name')
             date = d.get('date')
             amount = d.get('amount')
             fitid = d.get('fitid')
             t = Transaction(full_account_name, name, date, amount, fitid=fitid)
-            parsedTransactions.account = account
-            parsedTransactions.transactions.append(t)
+            transactions.append(t)
 
-        return parsedTransactions
+        return transactions
