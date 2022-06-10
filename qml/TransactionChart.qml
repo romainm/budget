@@ -82,12 +82,20 @@ Rectangle {
                 axisX: BarCategoryAxis { categories: mySeries.months }
                 axisY: ValueAxis { id: valueAxis }
 
-                BarSet { color: "green"; values: mySeries.totalPerMonth }
-                BarSet { color: "red"; values: mySeries.totalPerMonthNeg }
+                BarSet { color: "green"; values: mySeries.totalPerMonth; labelColor: "black"}
+                BarSet { color: "red"; values: mySeries.totalPerMonthNeg; labelColor: "black" }
+
+                labelsFormat: "@value"
+                labelsVisible: true
+                labelsPosition: AbstractBarSeries.LabelsOutsideEnd
 
                 Component.onCompleted: function() {
                     mySeries.refreshHeaders()
                     mySeries.refreshData()
+                }
+
+                onClicked: function() {
+                    console.log("clicked")
                 }
 
                 function refreshData() {

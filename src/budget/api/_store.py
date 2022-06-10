@@ -6,6 +6,8 @@ class TransactionFilter(object):
         self.amountMoreThan = None
         self.namePattern = None
         self.categoryPattern = None
+        # a datetime.date object. We only care about the month from it.
+        self.month = None
         self.hash = None
 
 
@@ -24,6 +26,20 @@ class InMemoryStore(object):
             for transaction in self._transactions:
                 if transaction.hash() == transactionFilter.hash:
                     transactions.append(transaction)
+            return transactions
+
+        for transaction in self._transactions:
+            if transactionFilter.categoryPattern:
+                if not transaction.category:
+                    continue
+                if transactionFilter.categoryPattern not in transaction.category.name:
+                    continue
+
+            if transactionFilter.month and (transactionFilter.month.month != transaction.date.month or transactionFilter.month.year != transaction.date.year):
+                continue
+
+            transactions.append(transaction)
+
         return transactions
 
     def accounts(self):

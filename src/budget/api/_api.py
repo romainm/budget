@@ -16,8 +16,8 @@ class Api(QObject):
         QObject.__init__(self)
         self._store = store
 
-    def transactions(self):
-        return self._store.transactions()
+    def transactions(self, ft=None):
+        return self._store.transactions(ft)
 
     def categories(self):
         return self._store.categories()

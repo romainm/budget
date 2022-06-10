@@ -3,8 +3,9 @@ import sys
 
 from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtWidgets import QApplication
-from budget.api import Api, InMemoryStore
+from budget.api import Api, InMemoryStore, TransactionFilter
 from datetime import date as dtd
+from dateutil import relativedelta
 
 
 from PySide6.QtCore import (
@@ -183,11 +184,13 @@ class TransactionModel(QAbstractListModel):
 
 class CategoryModel(QAbstractListModel):
     DataRole = Qt.UserRole + 1000
+    MonthlySumRole = Qt.UserRole + 1001
 
     def __init__(self, api, parent=None):
         super(CategoryModel, self).__init__(parent)
 
         self._api = api
+        self._nbMonths = 12
 
     def categories(self):
         return self._api.categories()
@@ -197,23 +200,48 @@ class CategoryModel(QAbstractListModel):
             if role == self.DataRole:
                 category = self._api.categories()[index.row()]
                 return category.name
+            elif role == self.MonthlySumRole:
+                category = self._api.categories()[index.row()]
+                return self._computeMonthlySum(category)
         return None
 
+    def _computeMonthlySum(self, category):
+        monthDate = dtd.today()
+        monthDate.replace(day=1)
+
+        amounts = []
+        for i in range(self._nbMonths):
+            monthDate = monthDate - relativedelta.relativedelta(months=1)
+            ft = TransactionFilter()
+            ft.month = monthDate
+            ft.categoryPattern = category.name
+            transactions = self._api.transactions(ft)
+            amounts.append(sum([t.amount for t in transactions]))
+
+        return amounts
+
     def setData(self, index, value, role):
-        if role == self.DataRole:
-            # expected that this is where we can change the name of a category later on if we want to
-            return True
+        # if role == self.DataRole:
+        #     # expected that this is where we can change the name of a category later on if we want to
+        #     return True
         return False
 
     def rowCount(self, parent=QModelIndex()):
         sys.stdout.flush()
         return len(self._api.categories())
 
+    @Slot("int")
+    def setNbMonths(self, nbMonths):
+        self.beginResetModel()
+        self._nbMonths = nbMonths
+        self.endResetModel()
+
     def roleNames(self):
 
         """Role names are used by QML to map key to role"""
         roles = dict()
         roles[self.DataRole] = b"modelData"
+        roles[self.MonthlySumRole] = b"monthlySum"
         return roles
 
 
@@ -276,6 +304,16 @@ class UIModel(QObject):
         self._api.setCategory(categoryName, transactions)
         for i in self._transactionModel.selectedIndices():
             self._transactionModel.dataChanged.emit(self._transactionModel.index(i, 0), self._transactionModel.index(i,0))
+
+    def _getCategoryMonthlySum(self):
+        return 500
+
+    def categoryChartModel(self):
+        pass
+
+
+
+    categoryMonthlySum = Property(float, _getCategoryMonthlySum)
 
 
 def setupTempCategories():
